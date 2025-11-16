@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="Bank/PiggyBank.csproj" Id="c91104b4-521b-445b-aa14-5e930c855294" />
+  <Project Path="PasswordGenerator/PasswordGenerator.csproj" Id="a0be0822-9460-47b7-b7fa-0ea41e243730" />
 </Solution>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Password Generator</title>
+    </head>
+    <body>
+        <p>Description: Gacha password generator</p>
+        <p>
+            Service URL:
+            <a href="https://localhost:44323/api/password"
+                >https://localhost:44323/api/password</a
+            >
+        </p>
+        <p>Method: GeneratePassword(int numOfSection) -> JSON</p>
+        <form id="generatePassword">
+            <p>
+                Sections:
+                <input type="number" id="sections" min="3" value="3" step="1" />
+            </p>
+            <p><button type="submit">Generate</button></p>
+        </form>
+
+        <textarea id="result" readonly></textarea>
+
+        <script>
+            const result = document.getElementById("result");
+            const sectionsInput = document.getElementById("sections");
+
+            document
+                .getElementById("generatePassword")
+                .addEventListener("submit", async (event) => {
+                    event.preventDefault();
+
+                    try {
+                        let url = `${window.location.origin}/api/password`;
+                        const requested = parseInt(sectionsInput.value, 10);
+
+                        if (!isNaN(requested) && requested >= 3) {
+                            url += `?sections=${requested}`;
+                        }
+
+                        const response = await fetch(url);
+
+                        if (!response.ok) {
+                            throw new Error(
+                                `Service returned ${response.status}`
+                            );
+                        }
+
+                        const payload = await response.json();
+                        result.value = payload.password
+                            ? payload.password
+                            : JSON.stringify(payload, null, 2);
+                    } catch (err) {
+                        result.value = "Error: " + err.message;
+                    }
+                });
+        </script>
+    </body>
+</html>
