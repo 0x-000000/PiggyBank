@@ -5,7 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 
-namespace PiggyBank.Controllers
+namespace Bank.Controllers
 {
     public class ValuesController : ApiController
     {
