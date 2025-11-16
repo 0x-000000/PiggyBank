@@ -1,7 +1,7 @@
 ﻿using System.Web;
 using System.Web.Mvc;
 
-namespace Bank
+namespace PiggyBank
 {
     public class FilterConfig
     {

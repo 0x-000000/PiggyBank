@@ -1,7 +1,7 @@
 ﻿using System.Web;
 using System.Web.Optimization;
 
-namespace Bank
+namespace PiggyBank
 {
     public class BundleConfig
     {
