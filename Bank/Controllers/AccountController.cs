@@ -1,5 +1,7 @@
 using Bank.Models;
 using System;
+using System.Configuration;
+using System.Net;
 using System.Web;
 using System.Web.Mvc;
 
@@ -104,6 +106,26 @@ namespace Bank.Controllers
         {
             var code = GenerateCaptchaCode();
             return Json(new { imageUrl = BuildCaptchaUrl(code), answer = code });
+        }
+
+        [HttpGet]
+        public ActionResult SuggestPassword()
+        {
+            var url = ConfigurationManager.AppSettings["PasswordServiceUrl"];
+
+            try
+            {
+                using (var client = new WebClient())
+                {
+                    var payload = client.DownloadString(url);
+                    return Content(payload, "application/json");
+                }
+            }
+            catch
+            {
+                Response.StatusCode = 500;
+                return Json(new { error = "Password generator is down?" }, JsonRequestBehavior.AllowGet);
+            }
         }
 
         [HttpPost]

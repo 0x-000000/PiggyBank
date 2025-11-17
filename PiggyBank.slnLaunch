@@ -9,8 +9,7 @@
       },
       {
         "Path": "PasswordGenerator\\PasswordGenerator.csproj",
-        "Action": "Start",
-        "DebugTarget": "IIS Express (Google Chrome)"
+        "Action": "StartWithoutDebugging"
       }
     ]
   }
