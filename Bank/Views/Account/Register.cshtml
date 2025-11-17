@@ -1,0 +1,65 @@
+@{
+    ViewBag.Title = "Register";
+    var username = ViewBag.Username as string ?? string.Empty;
+    var captchaUrl = ViewBag.CaptchaUrl as string ?? string.Empty;
+    var captchaCode = ViewBag.CaptchaCode as string ?? string.Empty;
+}
+
+@using (Html.BeginForm("Register", "Account", FormMethod.Post, new { @class = "register-form" }))
+{
+    @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+
+    <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" value="@username" required />
+    </div>
+
+    <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required />
+    </div>
+
+    <div class="form-group">
+        <label for="confirmPassword">Confirm Password</label>
+        <input type="password" id="confirmPassword" name="confirmPassword" required />
+    </div>
+
+    <div class="form-group">
+        <label>Captcha</label>
+        <div class="captcha-block">
+            <img id="captchaImage" src="@captchaUrl" alt="Captcha" />
+            <button type="button" id="refreshCaptcha" class="btn btn-secondary">Refresh</button>
+        </div>
+        <input type="hidden" id="captchaAnswer" name="captchaAnswer" value="@captchaCode" />
+        <input type="text" id="captchaText" name="captchaText" maxlength="6" required />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create Account</button>
+}
+
+@section Scripts {
+    <script>
+        (function () {
+            var refreshButton = document.getElementById("refreshCaptcha");
+            if (!refreshButton) {
+                return;
+            }
+
+            refreshButton.addEventListener("click", function () {
+                fetch("@Url.Action("RefreshCaptcha", "Account")", {
+                    method: "POST",
+                    headers: { "X-Requested-With": "XMLHttpRequest" }
+                })
+                    .then(function (res) { return res.json(); })
+                    .then(function (data) {
+                        if (data && data.imageUrl) {
+                            document.getElementById("captchaImage").src = data.imageUrl;
+                        }
+                        if (data && data.answer) {
+                            document.getElementById("captchaAnswer").value = data.answer;
+                        }
+                    });
+            });
+        })();
+    </script>
+}

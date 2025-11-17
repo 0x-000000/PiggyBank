@@ -2,38 +2,4 @@
     ViewBag.Title = "Bank";
 }
 
-<form id="signUp">
-    <p>Username <input type="text" id="user" required /></p>
-    <p>Password <input type="text" id="password" required /></p>
-    <p><button type="submit">Send</button></p>
-</form>
-<textarea id="result" rows="3" cols="50" readonly></textarea>
-
-@section Scripts {
-    <script>
-        (function () {
-            var form = document.getElementById("signUp");
-
-            if (!form) {
-                return;
-            }
-
-            form.addEventListener("submit", function (e) {
-                e.preventDefault();
-                var box = document.getElementById("result");
-
-                fetch("/api/bank/signup", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        username: document.getElementById("user").value,
-                        password: document.getElementById("password").value
-                    })
-                })
-                    .then(function (res) { return res.text(); })
-                    .then(function (text) { box.value = text; })
-                    .catch(function (err) { box.value = err.message; });
-            });
-        })();
-    </script>
-}
+<h1>Hello hackers!</h1>

@@ -10,7 +10,6 @@ namespace Bank.Models
     public class BankAccount
     {
         public string Username { get; set; }
-        public string Password { get; set; }
         public double Balance { get; set; }
         public string AccountType { get; set; }
     }
@@ -51,6 +50,12 @@ namespace Bank.Models
                 throw new InvalidOperationException("Unable to resolve database path.");
             }
 
+            var folder = Path.GetDirectoryName(path);
+            if (!string.IsNullOrEmpty(folder) && !Directory.Exists(folder))
+            {
+                Directory.CreateDirectory(folder);
+            }
+
             return path;
         }
 
@@ -62,20 +67,8 @@ namespace Bank.Models
             //create new account list if file is empty or not exist
             if (!File.Exists(path))
             {
-                var admin = new List<BankAccount>
-                {
-                    new BankAccount
-                    {
-                        Username = "TA",
-                        Password = "Cse445!",
-                        Balance = 0,
-                        AccountType = "admin"
-                    }
-                };
-
-                SaveAccounts(admin);
-
-                return admin;
+                File.WriteAllText(path, "[]");
+                return new List<BankAccount>();
             }
 
             var json = File.ReadAllText(path);
@@ -99,6 +92,8 @@ namespace Bank.Models
 
     public class BankSystem
     {
+        private readonly Credentials credentials = new Credentials();
+
         public BankAccount SignUp(string username, string password, string accountType, out string error)
         {
             error = null;
@@ -119,18 +114,24 @@ namespace Bank.Models
                 return null;
             }
 
+            if (credentials.HasUser(username))
+            {
+                error = "Username already exists.";
+                return null;
+            }
+
             var role = string.Equals(accountType, "admin") ? "admin" : "member";
 
             var account = new BankAccount
             {
                 Username = username.Trim(),
-                Password = password,
                 Balance = 0,
                 AccountType = role
             };
 
             accounts.Add(account);
             BankDatabase.SaveAccounts(accounts);
+            credentials.WriteCredential(account.Username, password);
 
             return account;
         }
@@ -146,7 +147,13 @@ namespace Bank.Models
             }
 
             var accounts = BankDatabase.LoadAccounts();
-            var account = FindAccount(accounts, username, password);
+            if (!credentials.Validate(username, password))
+            {
+                error = "Invalid username or password.";
+                return null;
+            }
+
+            var account = FindAccount(accounts, username);
 
             if (account == null)
             {
@@ -165,6 +172,24 @@ namespace Bank.Models
 
             var accounts = BankDatabase.LoadAccounts();
             return FindAccount(accounts, username);
+        }
+
+        public void CreateBuiltInAccounts()
+        {
+            var accounts = BankDatabase.LoadAccounts();
+            var hasAnyAccount = accounts.Count > 0;
+            var hasCredentials = credentials.HasUser("TA");
+
+            if (hasAnyAccount || hasCredentials)
+            {
+                if (!hasCredentials && hasAnyAccount)
+                {
+                    credentials.WriteCredential("TA", "Cse445!");
+                }
+                return;
+            }
+
+            SignUp("TA", "Cse445!", "admin", out _);
         }
 
         public BankAccount Deposit(BankAccount actor, TransactionRequest request, out string error)
@@ -338,13 +363,6 @@ namespace Bank.Models
         }
 
         //login check
-        private static BankAccount FindAccount(List<BankAccount> accounts, string username, string password)
-        {
-            return accounts.FirstOrDefault(a =>
-                string.Equals(a.Username.ToLower(), username?.ToLower().Trim()) &&
-                a.Password == password);
-        }
-
         private static BankAccount FindAccount(List<BankAccount> accounts, string username)
         {
             return accounts.FirstOrDefault(a =>

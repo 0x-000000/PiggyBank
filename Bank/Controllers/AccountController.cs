@@ -8,6 +8,8 @@ namespace Bank.Controllers
     public class AccountController : Controller
     {
         private readonly BankSystem bank = new BankSystem();
+        private static readonly char[] CharPool = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz0123456789@$%^()".ToCharArray();
+        private static readonly Random RNG = new Random();
 
         [HttpGet]
         public ActionResult Login(string returnUrl)
@@ -51,6 +53,59 @@ namespace Bank.Controllers
             return RedirectToAction("Index", "Member");
         }
 
+        [HttpGet]
+        public ActionResult Register()
+        {
+            PrepareCaptcha();
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult Register(string username, string password, string confirmPassword, string captchaText, string captchaAnswer)
+        {
+            ViewBag.Username = username;
+
+            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+            {
+                ModelState.AddModelError(string.Empty, "Username and password are required.");
+            }
+
+            if (!string.Equals(password, confirmPassword, StringComparison.Ordinal))
+            {
+                ModelState.AddModelError(string.Empty, "Passwords must match.");
+            }
+
+            if (!IsCaptchaValid(captchaText, captchaAnswer))
+            {
+                ModelState.AddModelError("captchaText", "Captcha text is incorrect.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                PrepareCaptcha();
+                return View();
+            }
+
+            var account = bank.SignUp(username, password, "member", out var error);
+
+            if (account == null)
+            {
+                ModelState.AddModelError(string.Empty, error ?? "Registration failed.");
+                PrepareCaptcha();
+                return View();
+            }
+
+            return RedirectToAction("Index", "Member");
+        }
+
+        // asu server requests go brrrr
+        [HttpPost]
+        public ActionResult RefreshCaptcha()
+        {
+            var code = GenerateCaptchaCode();
+            return Json(new { imageUrl = BuildCaptchaUrl(code), answer = code });
+        }
+
         [HttpPost]
         public ActionResult Logout()
         {
@@ -72,6 +127,39 @@ namespace Bank.Controllers
                 Expires = DateTime.UtcNow.AddDays(-1)   // classic httponly cookie invalidation
             };
             Response.Cookies.Add(cookie);
+        }
+
+        private void PrepareCaptcha()
+        {
+            var code = GenerateCaptchaCode();
+            ViewBag.CaptchaCode = code;
+            ViewBag.CaptchaUrl = BuildCaptchaUrl(code);
+        }
+
+        private static string GenerateCaptchaCode()
+        {
+            var chars = new char[6];
+            for (var i = 0; i < chars.Length; i++)
+            {
+                chars[i] = CharPool[RNG.Next(CharPool.Length)];
+            }
+
+            return new string(chars);
+        }
+
+        private bool IsCaptchaValid(string input, string expected)
+        {
+            if (string.IsNullOrWhiteSpace(expected) || string.IsNullOrWhiteSpace(input))
+            {
+                return false;
+            }
+
+            return string.Equals(expected.Trim(), input.Trim(), StringComparison.Ordinal);
+        }
+
+        private static string BuildCaptchaUrl(string code)
+        {
+            return $"https://venus.sod.asu.edu/WSRepository/Services/ImageVerifier/Service.svc/GetImage/{code}";
         }
     }
 }
