@@ -1,0 +1,17 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "Bank\\Bank.csproj",
+        "Action": "Start",
+        "DebugTarget": "IIS Express (Google Chrome)"
+      },
+      {
+        "Path": "PasswordGenerator\\PasswordGenerator.csproj",
+        "Action": "Start",
+        "DebugTarget": "IIS Express (Google Chrome)"
+      }
+    ]
+  }
+]
