@@ -1,0 +1,67 @@
+@{
+    ViewBag.Title = "Staff";
+    var username = ViewBag.Username as string ?? "unknown";
+}
+
+<p>Hello, @username</p>
+
+@using (Html.BeginForm("Logout", "Account", FormMethod.Post))
+{
+    <button type="submit">Log Out</button>
+}
+
+<div>
+    <h3>Transfer</h3>
+    <form id="transferForm">
+        <p>From Username <input type="text" id="transferFromUser" required /></p>
+        <p>From Password <input type="text" id="transferFromPass" required /></p>
+        <p>To Username <input type="text" id="transferToUser" required /></p>
+        <p>Amount <input type="number" id="transferAmount" required /></p>
+        <p><button type="submit">Send</button></p>
+    </form>
+    <textarea id="transferResult" readonly></textarea>
+</div>
+
+<div>
+    <h3>Check Balance</h3>
+    <form id="staffBalanceForm">
+        <p>Username <input type="text" id="staffBalanceUser" required /></p>
+        <p>Password <input type="text" id="staffBalancePass" required /></p>
+        <p><button type="submit">Send</button></p>
+    </form>
+    <textarea id="staffBalanceResult" readonly></textarea>
+</div>
+
+@section Scripts {
+    <script>
+        function run(endpoint, payload, outputId) {
+            var box = document.getElementById(outputId);
+            fetch("/api/bank/" + endpoint, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            })
+                .then(function (res) { return res.text(); })
+                .then(function (text) { box.value = text; })
+                .catch(function (err) { box.value = err.message; });
+        }
+
+        document.getElementById("transferForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            run("transfer", {
+                fromUsername: document.getElementById("transferFromUser").value,
+                fromPassword: document.getElementById("transferFromPass").value,
+                toUsername: document.getElementById("transferToUser").value,
+                amount: Number(document.getElementById("transferAmount").value)
+            }, "transferResult");
+        });
+
+        document.getElementById("staffBalanceForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            run("balance", {
+                username: document.getElementById("staffBalanceUser").value,
+                password: document.getElementById("staffBalancePass").value
+            }, "staffBalanceResult");
+        });
+    </script>
+}

@@ -1,0 +1,25 @@
+@{
+    ViewBag.Title = "Login";
+    var returnUrl = ViewBag.ReturnUrl as string ?? string.Empty;
+    var error = ViewBag.Error as string;
+}
+
+@if (!string.IsNullOrWhiteSpace(error))
+{
+    <p style="color:red">@error</p>
+}
+
+<form method="post" action="/Account/Login">
+    <input type="hidden" name="returnUrl" value="@returnUrl" />
+    <p>
+        <label>Username</label>
+        <input type="text" name="username" required />
+    </p>
+    <p>
+        <label>Password</label>
+        <input type="password" name="password" required />
+    </p>
+    <p>
+        <button type="submit">Sign In</button>
+    </p>
+</form>

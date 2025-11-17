@@ -1,0 +1,85 @@
+@{
+    ViewBag.Title = "Member";
+    var username = ViewBag.Username as string ?? "unknown";
+}
+
+<p>Hello, @username</p>
+
+@using (Html.BeginForm("Logout", "Account", FormMethod.Post))
+{
+    <button type="submit">Log Out</button>
+}
+
+<div >
+    <h3>Deposit</h3>
+    <form id="depositForm">
+        <p>Username <input type="text" id="depositUser" required /></p>
+        <p>Password <input type="text" id="depositPass" required /></p>
+        <p>Amount <input type="number" id="depositAmount" required /></p>
+        <p><button type="submit">Send</button></p>
+    </form>
+    <textarea id="depositResult" readonly></textarea>
+</div>
+
+<div >
+    <h3>Spend</h3>
+    <form id="spendForm">
+        <p>Username <input type="text" id="spendUser" required /></p>
+        <p>Password <input type="text" id="spendPass" required /></p>
+        <p>Amount <input type="number" id="spendAmount" required /></p>
+        <p><button type="submit">Send</button></p>
+    </form>
+    <textarea id="spendResult" readonly></textarea>
+</div>
+
+<div >
+    <h3>balance</h3>
+    <form id="balanceForm">
+        <p>Username <input type="text" id="balanceUser" required /></p>
+        <p>Password <input type="text" id="balancePass" required /></p>
+        <p><button type="submit">Send</button></p>
+    </form>
+    <textarea id="balanceResult" readonly></textarea>
+</div>
+
+@section Scripts {
+    <script>
+        function send(endpoint, payload, outputId) {
+            var box = document.getElementById(outputId);
+            fetch("/api/bank/" + endpoint, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            })
+                .then(function (res) { return res.text(); })
+                .then(function (text) { box.value = text; })
+                .catch(function (err) { box.value = err.message; });
+        }
+
+        document.getElementById("depositForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            send("deposit", {
+                username: document.getElementById("depositUser").value,
+                password: document.getElementById("depositPass").value,
+                amount: Number(document.getElementById("depositAmount").value)
+            }, "depositResult");
+        });
+
+        document.getElementById("spendForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            send("spend", {
+                username: document.getElementById("spendUser").value,
+                password: document.getElementById("spendPass").value,
+                amount: Number(document.getElementById("spendAmount").value)
+            }, "spendResult");
+        });
+
+        document.getElementById("balanceForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            send("balance", {
+                username: document.getElementById("balanceUser").value,
+                password: document.getElementById("balancePass").value
+            }, "balanceResult");
+        });
+    </script>
+}

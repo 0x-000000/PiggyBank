@@ -2,173 +2,38 @@
     ViewBag.Title = "Bank";
 }
 
-<p>
-    Description: This is banking service with signup, deposit, spend,
-    balance, and transfer
-</p>
-<p>
-    Service URL:
-    <a href="https://localhost:44332/api/bank">https://localhost:44332/api/bank</a>
-</p>
-<p>Methods: signup, deposit, spend, balance, transfer</p>
-<p>Returns: JSON</p>
-
-<h3>Sign Up</h3>
-<form id="signupForm">
-    <p>Username: <input type="text" id="signupUser" required /></p>
-    <p>Password: <input type="text" id="signupPass" required /></p>
-    <p><button type="submit">Sign Up</button></p>
+<form id="signUp">
+    <p>Username <input type="text" id="user" required /></p>
+    <p>Password <input type="text" id="password" required /></p>
+    <p><button type="submit">Send</button></p>
 </form>
-<textarea id="signupResult" readonly></textarea>
-
-<h3>Deposit</h3>
-<form id="depositForm">
-    <p>Username: <input type="text" id="depositUser" required /></p>
-    <p>Password: <input type="text" id="depositPass" required /></p>
-    <p>
-        Amount:
-        <input type="number" id="depositAmount" required />
-    </p>
-    <p><button type="submit">Deposit</button></p>
-</form>
-<textarea id="depositResult" readonly></textarea>
-
-<h3>Spend</h3>
-<form id="spendForm">
-    <p>Username: <input type="text" id="spendUser" required /></p>
-    <p>Password: <input type="text" id="spendPass" required /></p>
-    <p>
-        Amount:
-        <input type="number" id="spendAmount" required />
-    </p>
-    <p><button type="submit">Spend</button></p>
-</form>
-<textarea id="spendResult" readonly></textarea>
-
-<h3>Balance</h3>
-<form id="balanceForm">
-    <p>Username: <input type="text" id="balanceUser" required /></p>
-    <p>Password: <input type="text" id="balancePass" required /></p>
-    <p><button type="submit">Check Balance</button></p>
-</form>
-<textarea id="balanceResult" readonly></textarea>
-
-<h3>Transfer</h3>
-<form id="transferForm">
-    <p>
-        From Username:
-        <input type="text" id="transferFromUser" required />
-    </p>
-    <p>
-        From Password:
-        <input type="text" id="transferFromPass" required />
-    </p>
-    <p>To Username: <input type="text" id="transferToUser" required /></p>
-    <p>
-        Amount:
-        <input type="number" id="transferAmount" required />
-    </p>
-    <p><button type="submit">Transfer</button></p>
-</form>
-<textarea id="transferResult" readonly></textarea>
+<textarea id="result" rows="3" cols="50" readonly></textarea>
 
 @section Scripts {
     <script>
-        async function callApi(endpoint, payload, outputBox) {
-            try {
-                const response = await fetch(`api/bank/${endpoint}`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(payload),
-                });
+        (function () {
+            var form = document.getElementById("signUp");
 
-                const text = await response.text();
-                outputBox.value = text;
-            } catch (err) {
-                outputBox.value = "Error: " + err.message;
+            if (!form) {
+                return;
             }
-        }
 
-        document
-            .getElementById("signupForm")
-            .addEventListener("submit", (event) => {
-                event.preventDefault();
-                callApi(
-                    "signup",
-                    {
-                        username: document.getElementById("signupUser").value,
-                        password: document.getElementById("signupPass").value,
-                    },
-                    document.getElementById("signupResult")
-                );
-            });
+            form.addEventListener("submit", function (e) {
+                e.preventDefault();
+                var box = document.getElementById("result");
 
-        document
-            .getElementById("depositForm")
-            .addEventListener("submit", (event) => {
-                event.preventDefault();
-                callApi(
-                    "deposit",
-                    {
-                        username: document.getElementById("depositUser").value,
-                        password: document.getElementById("depositPass").value,
-                        amount: Number(
-                            document.getElementById("depositAmount").value
-                        ),
-                    },
-                    document.getElementById("depositResult")
-                );
+                fetch("/api/bank/signup", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        username: document.getElementById("user").value,
+                        password: document.getElementById("password").value
+                    })
+                })
+                    .then(function (res) { return res.text(); })
+                    .then(function (text) { box.value = text; })
+                    .catch(function (err) { box.value = err.message; });
             });
-
-        document
-            .getElementById("spendForm")
-            .addEventListener("submit", (event) => {
-                event.preventDefault();
-                callApi(
-                    "spend",
-                    {
-                        username: document.getElementById("spendUser").value,
-                        password: document.getElementById("spendPass").value,
-                        amount: Number(
-                            document.getElementById("spendAmount").value
-                        ),
-                    },
-                    document.getElementById("spendResult")
-                );
-            });
-
-        document
-            .getElementById("balanceForm")
-            .addEventListener("submit", (event) => {
-                event.preventDefault();
-                callApi(
-                    "balance",
-                    {
-                        username: document.getElementById("balanceUser").value,
-                        password: document.getElementById("balancePass").value,
-                    },
-                    document.getElementById("balanceResult")
-                );
-            });
-
-        document
-            .getElementById("transferForm")
-            .addEventListener("submit", (event) => {
-                event.preventDefault();
-                callApi(
-                    "transfer",
-                    {
-                        fromUsername: document.getElementById("transferFromUser").value,
-                        fromPassword: document.getElementById("transferFromPass").value,
-                        toUsername: document.getElementById("transferToUser").value,
-                        amount: Number(
-                            document.getElementById("transferAmount").value
-                        ),
-                    },
-                    document.getElementById("transferResult")
-                );
-            });
+        })();
     </script>
 }
