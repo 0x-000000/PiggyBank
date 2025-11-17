@@ -12,33 +12,32 @@ namespace Bank.Models
         public string Username { get; set; }
         public string Password { get; set; }
         public double Balance { get; set; }
+        public string AccountType { get; set; }
     }
 
     public class SignUpRequest
     {
         public string Username { get; set; }
         public string Password { get; set; }
+        public string AccountType { get; set; }
     }
 
     public class TransactionRequest
     {
-        public string Username { get; set; }
-        public string Password { get; set; }
+        public string TargetUsername { get; set; }
         public double Amount { get; set; }
     }
 
     public class TransferRequest
     {
         public string FromUsername { get; set; }
-        public string FromPassword { get; set; }
         public string ToUsername { get; set; }
         public double Amount { get; set; }
     }
 
     public class BalanceRequest
     {
-        public string Username { get; set; }
-        public string Password { get; set; }
+        public string TargetUsername { get; set; }
     }
 
     public class BankDatabase
@@ -63,8 +62,20 @@ namespace Bank.Models
             //create new account list if file is empty or not exist
             if (!File.Exists(path))
             {
-                File.WriteAllText(path, "[]");
-                return new List<BankAccount>();
+                var admin = new List<BankAccount>
+                {
+                    new BankAccount
+                    {
+                        Username = "TA",
+                        Password = "Cse445!",
+                        Balance = 0,
+                        AccountType = "admin"
+                    }
+                };
+
+                SaveAccounts(admin);
+
+                return admin;
             }
 
             var json = File.ReadAllText(path);
@@ -73,8 +84,7 @@ namespace Bank.Models
                 return new List<BankAccount>();
             }
 
-            //load accounts from json
-            return JsonConvert.DeserializeObject<List<BankAccount>>(json);
+            return JsonConvert.DeserializeObject<List<BankAccount>>(json) ?? new List<BankAccount>();
         }
 
         //write accounts to json
@@ -84,11 +94,12 @@ namespace Bank.Models
             var json = JsonConvert.SerializeObject(accounts, Formatting.Indented);
             File.WriteAllText(path, json);
         }
+
     }
 
     public class BankSystem
     {
-        public BankAccount SignUp(string username, string password, out string error)
+        public BankAccount SignUp(string username, string password, string accountType, out string error)
         {
             error = null;
 
@@ -108,18 +119,15 @@ namespace Bank.Models
                 return null;
             }
 
+            var role = string.Equals(accountType, "admin") ? "admin" : "member";
+
             var account = new BankAccount
             {
                 Username = username.Trim(),
                 Password = password,
-                Balance = 0
+                Balance = 0,
+                AccountType = role
             };
-
-            //root backdoor
-            if (string.Equals(account.Username.ToLower(), "root"))
-            {
-                account.Balance = double.MaxValue;
-            }
 
             accounts.Add(account);
             BankDatabase.SaveAccounts(accounts);
@@ -127,28 +135,39 @@ namespace Bank.Models
             return account;
         }
 
-        public BankAccount Deposit(TransactionRequest request, out string error)
+        public BankAccount Authenticate(string username, string password, out string error)
         {
-            if (!ValidateTransactionRequest(request, out error))
-            {
-                return null;
-            }
+            error = null;
 
-            var accounts = BankDatabase.LoadAccounts();
-            var account = FindAccount(accounts, request.Username, request.Password);
-
-            if (account == null)
+            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
             {
                 error = "Invalid username or password.";
                 return null;
             }
 
-            account.Balance += request.Amount;
-            BankDatabase.SaveAccounts(accounts);
+            var accounts = BankDatabase.LoadAccounts();
+            var account = FindAccount(accounts, username, password);
+
+            if (account == null)
+            {
+                error = "Invalid username or password.";
+            }
+
             return account;
         }
 
-        public BankAccount Spend(TransactionRequest request, out string error)
+        public BankAccount GetAccount(string username)
+        {
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                return null;
+            }
+
+            var accounts = BankDatabase.LoadAccounts();
+            return FindAccount(accounts, username);
+        }
+
+        public BankAccount Deposit(BankAccount actor, TransactionRequest request, out string error)
         {
             if (!ValidateTransactionRequest(request, out error))
             {
@@ -156,57 +175,92 @@ namespace Bank.Models
             }
 
             var accounts = BankDatabase.LoadAccounts();
-            var account = FindAccount(accounts, request.Username, request.Password);
-
-            if (account == null)
+            var target = PickTarget(accounts, actor, request.TargetUsername, out error);
+            if (target == null)
             {
-                error = "Invalid username or password.";
                 return null;
             }
 
-            if (account.Balance < request.Amount)
+            target.Balance += request.Amount;
+            BankDatabase.SaveAccounts(accounts);
+            return target;
+        }
+
+        public BankAccount Spend(BankAccount actor, TransactionRequest request, out string error)
+        {
+            if (!ValidateTransactionRequest(request, out error))
+            {
+                return null;
+            }
+
+            var accounts = BankDatabase.LoadAccounts();
+            var target = PickTarget(accounts, actor, request.TargetUsername, out error);
+            if (target == null)
+            {
+                return null;
+            }
+
+            if (target.Balance < request.Amount)
             {
                 error = "Insufficient funds.";
                 return null;
             }
 
-            account.Balance -= request.Amount;
+            target.Balance -= request.Amount;
             BankDatabase.SaveAccounts(accounts);
-            return account;
+            return target;
         }
 
-        public (BankAccount from, BankAccount to) Transfer(TransferRequest request, out string error)
+        public BankAccount GetBalance(BankAccount actor, BalanceRequest request, out string error)
+        {
+            error = null;
+            var accounts = BankDatabase.LoadAccounts();
+            var target = PickTarget(accounts, actor, request?.TargetUsername, out error);
+            return target;
+        }
+
+        public (BankAccount from, BankAccount to) Transfer(BankAccount actor, TransferRequest request, out string error)
         {
             error = null;
 
-            if (request == null)
+            if (actor == null)
+            {
+                error = "Unknown account.";
+                return (null, null);
+            }
+
+            if (request == null || string.IsNullOrWhiteSpace(request.ToUsername))
             {
                 error = "Invalid request.";
                 return (null, null);
             }
 
-            if (string.IsNullOrWhiteSpace(request.FromUsername) || string.IsNullOrWhiteSpace(request.FromPassword) || string.IsNullOrWhiteSpace(request.ToUsername))
-            {
-                error = "Invalid usernames or password.";
-                return (null, null);
-            }
-
-            if (request.Amount < 0)
+            if (request.Amount <= 0)
             {
                 error = "Amount cannot be negative.";
                 return (null, null);
             }
 
             var accounts = BankDatabase.LoadAccounts();
-            var sender = FindAccount(accounts, request.FromUsername, request.FromPassword);
+            var fromName = string.IsNullOrWhiteSpace(request.FromUsername)
+                ? actor.Username
+                : request.FromUsername.Trim();
 
-            if (sender == null)
+            if (!IsAdmin(actor) && !string.Equals(fromName, actor.Username, StringComparison.OrdinalIgnoreCase))
             {
-                error = "Invalid username or password.";
+                error = "Members can only transfer their own money.";
                 return (null, null);
             }
 
-            var recipient = accounts.FirstOrDefault(a => string.Equals(a.Username.ToLower(), request.ToUsername.ToLower().Trim()));
+            var sender = FindAccount(accounts, fromName);
+
+            if (sender == null)
+            {
+                error = "Invalid sender.";
+                return (null, null);
+            }
+
+            var recipient = FindAccount(accounts, request.ToUsername);
 
             if (recipient == null)
             {
@@ -227,51 +281,60 @@ namespace Bank.Models
             return (sender, recipient);
         }
 
-        public BankAccount GetBalance(BalanceRequest request, out string error)
+        private static BankAccount PickTarget(List<BankAccount> accounts, BankAccount actor, string targetUsername, out string error)
         {
             error = null;
 
-            if (request == null || string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
+            if (actor == null)
             {
-                error = "Invalid username or password.";
+                error = "Unknown account.";
                 return null;
             }
 
-            var accounts = BankDatabase.LoadAccounts();
-            var account = FindAccount(accounts, request.Username, request.Password);
-
-            if (account == null)
+            var name = actor.Username;
+            if (!string.IsNullOrWhiteSpace(targetUsername))
             {
-                error = "Invalid username or password.";
+                name = targetUsername.Trim();
             }
 
-            return account;
+            if (!IsAdmin(actor) && !string.Equals(name, actor.Username, StringComparison.OrdinalIgnoreCase))
+            {
+                error = "Members can only use their own account.";
+                return null;
+            }
+
+            var target = FindAccount(accounts, name);
+            if (target == null)
+            {
+                error = "Account not found.";
+            }
+
+            return target;
         }
 
-        // validate credential every request
         private static bool ValidateTransactionRequest(TransactionRequest request, out string error)
         {
             error = null;
 
+            // validate input every request
             if (request == null)
             {
                 error = "Invalid request.";
                 return false;
             }
 
-            if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
+            if (request.Amount <= 0)
             {
-                error = "Invalid username or password.";
-                return false;
-            }
-
-            if (request.Amount < 0)
-            {
-                error = "Amount cannot be negative.";
+                error = "Amount must be positive.";
                 return false;
             }
 
             return true;
+        }
+
+        private static bool IsAdmin(BankAccount account)
+        {
+            return account != null && string.Equals(account.AccountType, "admin", StringComparison.OrdinalIgnoreCase);
         }
 
         //login check
@@ -280,6 +343,12 @@ namespace Bank.Models
             return accounts.FirstOrDefault(a =>
                 string.Equals(a.Username.ToLower(), username?.ToLower().Trim()) &&
                 a.Password == password);
+        }
+
+        private static BankAccount FindAccount(List<BankAccount> accounts, string username)
+        {
+            return accounts.FirstOrDefault(a =>
+                string.Equals(a.Username.ToLower(), username?.ToLower().Trim()));
         }
     }
 }

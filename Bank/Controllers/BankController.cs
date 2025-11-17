@@ -1,4 +1,5 @@
 using Bank.Models;
+using System.Web;
 using System.Web.Http;
 
 namespace Bank.Controllers
@@ -7,18 +8,33 @@ namespace Bank.Controllers
     public class BankController : ApiController
     {
         //auth "middleware" lmao
-        private static bool IsAuthError(string error)
-        {
-            return string.Equals(error, "Invalid username or password.");
-        }
+        private readonly BankSystem bank = new BankSystem();
 
-        private BankSystem bank = new BankSystem();
+        private IHttpActionResult RequireActor(out BankAccount actor)
+        {
+            var request = HttpContext.Current?.Request;
+            var username = request?.Cookies["user"]?.Value;
+
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                actor = null;
+                return Unauthorized();
+            }
+
+            actor = bank.GetAccount(username);
+            if (actor == null)
+            {
+                return Unauthorized();
+            }
+
+            return null;
+        }
 
         [HttpPost]
         [Route("signup")]
         public IHttpActionResult SignUp([FromBody] SignUpRequest request)
         {
-            var account = bank.SignUp(request?.Username, request?.Password, out var error);
+            var account = bank.SignUp(request?.Username, request?.Password, request?.AccountType, out var error);
 
             //failed to sign up case
             if (account == null)
@@ -30,6 +46,7 @@ namespace Bank.Controllers
             {
                 message = "Account created.",
                 username = account.Username,
+                accountType = account.AccountType,
                 balance = account.Balance
             });
         }
@@ -38,23 +55,24 @@ namespace Bank.Controllers
         [Route("deposit")]
         public IHttpActionResult Deposit([FromBody] TransactionRequest request)
         {
-            var account = bank.Deposit(request, out var error);
+            var fail = RequireActor(out var actor);
+            if (fail != null)
+            {
+                return fail;
+            }
+
+            var account = bank.Deposit(actor, request, out var error);
 
             if (account == null)
             {
-                //return a 401 if incorrect cred
-                if (IsAuthError(error))
-                {
-                    return Unauthorized();
-                }
-
                 return BadRequest(error ?? "Deposit failed.");
             }
 
             return Ok(new
             {
                 message = "Deposited.",
-                account.Username,
+                username = account.Username,
+                accountType = account.AccountType,
                 balance = account.Balance
             });
         }
@@ -63,23 +81,24 @@ namespace Bank.Controllers
         [Route("spend")]
         public IHttpActionResult Spend([FromBody] TransactionRequest request)
         {
-            var account = bank.Spend(request, out var error);
+            var fail = RequireActor(out var actor);
+            if (fail != null)
+            {
+                return fail;
+            }
+
+            var account = bank.Spend(actor, request, out var error);
 
             if (account == null)
             {
-                //return a 401 if incorrect cred
-                if (IsAuthError(error))
-                {
-                    return Unauthorized();
-                }
-
                 return BadRequest(error ?? "Spend failed.");
             }
 
             return Ok(new
             {
                 message = "Spent.",
-                account.Username,
+                username = account.Username,
+                accountType = account.AccountType,
                 balance = account.Balance
             });
         }
@@ -88,23 +107,24 @@ namespace Bank.Controllers
         [Route("balance")]
         public IHttpActionResult Balance([FromBody] BalanceRequest request)
         {
-            var account = bank.GetBalance(request, out var error);
+            var fail = RequireActor(out var actor);
+            if (fail != null)
+            {
+                return fail;
+            }
+
+            var account = bank.GetBalance(actor, request, out var error);
 
             if (account == null)
             {
-                //return a 401 if incorrect cred
-                if (IsAuthError(error))
-                {
-                    return Unauthorized();
-                }
-
                 return BadRequest(error ?? "Unable to retrieve balance.");
             }
 
             return Ok(new
             {
                 message = "Balance retrieved.",
-                account.Username,
+                username = account.Username,
+                accountType = account.AccountType,
                 balance = account.Balance
             });
         }
@@ -113,16 +133,16 @@ namespace Bank.Controllers
         [Route("transfer")]
         public IHttpActionResult Transfer([FromBody] TransferRequest request)
         {
-            var result = bank.Transfer(request, out var error);
+            var fail = RequireActor(out var actor);
+            if (fail != null)
+            {
+                return fail;
+            }
+
+            var result = bank.Transfer(actor, request, out var error);
 
             if (result.from == null || result.to == null)
             {
-                //return a 401 if incorrect cred
-                if (IsAuthError(error))
-                {
-                    return Unauthorized();
-                }
-
                 return BadRequest(error ?? "Transfer failed.");
             }
 
@@ -132,11 +152,13 @@ namespace Bank.Controllers
                 from = new
                 {
                     username = result.from.Username,
+                    accountType = result.from.AccountType,
                     balance = result.from.Balance
                 },
                 to = new
                 {
                     username = result.to.Username,
+                    accountType = result.to.AccountType,
                     balance = result.to.Balance
                 }
             });

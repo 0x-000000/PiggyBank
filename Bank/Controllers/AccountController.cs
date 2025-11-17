@@ -21,11 +21,7 @@ namespace Bank.Controllers
         {
             var redirect = HttpUtility.UrlDecode(returnUrl);
 
-            var account = bank.GetBalance(new BalanceRequest
-            {
-                Username = username,
-                Password = password
-            }, out var error);
+            var account = bank.Authenticate(username, password, out var error);
 
             if (account == null)
             {
@@ -34,11 +30,18 @@ namespace Bank.Controllers
                 return View();
             }
 
-            var cookie = new HttpCookie("user", account.Username)
+            var userCookie = new HttpCookie("user", account.Username)
             {
                 HttpOnly = true // xss proof ggez
             };
-            Response.Cookies.Add(cookie);
+
+            var roleCookie = new HttpCookie("role", account.AccountType)
+            {
+                HttpOnly = true
+            };
+
+            Response.Cookies.Add(userCookie);
+            Response.Cookies.Add(roleCookie);
 
             if (!string.IsNullOrWhiteSpace(redirect))
             {
@@ -51,16 +54,24 @@ namespace Bank.Controllers
         [HttpPost]
         public ActionResult Logout()
         {
-            if (Request.Cookies["user"] != null)
-            {
-                var cookie = new HttpCookie("user")
-                {
-                    Expires = DateTime.UtcNow.AddDays(-1)   // classic httponly cookie invalidation
-                };
-                Response.Cookies.Add(cookie);
-            }
+            ExpireCookie("user");
+            ExpireCookie("role");
 
             return RedirectToAction("Index", "Home");
+        }
+
+        private void ExpireCookie(string name)
+        {
+            if (Request.Cookies[name] == null)
+            {
+                return;
+            }
+
+            var cookie = new HttpCookie(name)
+            {
+                Expires = DateTime.UtcNow.AddDays(-1)   // classic httponly cookie invalidation
+            };
+            Response.Cookies.Add(cookie);
         }
     }
 }

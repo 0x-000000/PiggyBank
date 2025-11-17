@@ -18,7 +18,7 @@ namespace Bank.Modules
         {
             var app = (HttpApplication)sender;
             var path = app.Request.Path ?? string.Empty;
-            var loggedIn = app.Request.Cookies["user"] != null;
+            var loggedIn = app.Request.Cookies["user"] != null && app.Request.Cookies["role"] != null;
 
             if (IsProtected(path) && !loggedIn)
             {

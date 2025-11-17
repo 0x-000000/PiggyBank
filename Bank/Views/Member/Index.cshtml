@@ -1,45 +1,50 @@
 @{
     ViewBag.Title = "Member";
     var username = ViewBag.Username as string ?? "unknown";
+    var type = ViewBag.AccountType as string ?? "member";
 }
 
-<p>Hello, @username</p>
+<p>Hello, @username (@type)</p>
 
 @using (Html.BeginForm("Logout", "Account", FormMethod.Post))
 {
     <button type="submit">Log Out</button>
 }
 
-<div >
+<div>
     <h3>Deposit</h3>
     <form id="depositForm">
-        <p>Username <input type="text" id="depositUser" required /></p>
-        <p>Password <input type="text" id="depositPass" required /></p>
         <p>Amount <input type="number" id="depositAmount" required /></p>
         <p><button type="submit">Send</button></p>
     </form>
     <textarea id="depositResult" readonly></textarea>
 </div>
 
-<div >
+<div>
     <h3>Spend</h3>
     <form id="spendForm">
-        <p>Username <input type="text" id="spendUser" required /></p>
-        <p>Password <input type="text" id="spendPass" required /></p>
         <p>Amount <input type="number" id="spendAmount" required /></p>
         <p><button type="submit">Send</button></p>
     </form>
     <textarea id="spendResult" readonly></textarea>
 </div>
 
-<div >
-    <h3>balance</h3>
+<div>
+    <h3>Balance</h3>
     <form id="balanceForm">
-        <p>Username <input type="text" id="balanceUser" required /></p>
-        <p>Password <input type="text" id="balancePass" required /></p>
-        <p><button type="submit">Send</button></p>
+        <p><button type="submit">Refresh My Balance</button></p>
     </form>
     <textarea id="balanceResult" readonly></textarea>
+</div>
+
+<div>
+    <h3>Transfer</h3>
+    <form id="transferForm">
+        <p>Send To Username <input type="text" id="transferToUser" required /></p>
+        <p>Amount <input type="number" id="transferAmount" required /></p>
+        <p><button type="submit">Send</button></p>
+    </form>
+    <textarea id="transferResult" readonly></textarea>
 </div>
 
 @section Scripts {
@@ -59,27 +64,33 @@
         document.getElementById("depositForm").addEventListener("submit", function (e) {
             e.preventDefault();
             send("deposit", {
-                username: document.getElementById("depositUser").value,
-                password: document.getElementById("depositPass").value,
-                amount: Number(document.getElementById("depositAmount").value)
+                amount: Number(document.getElementById("depositAmount").value),
+                targetUsername: ""
             }, "depositResult");
         });
 
         document.getElementById("spendForm").addEventListener("submit", function (e) {
             e.preventDefault();
             send("spend", {
-                username: document.getElementById("spendUser").value,
-                password: document.getElementById("spendPass").value,
-                amount: Number(document.getElementById("spendAmount").value)
+                amount: Number(document.getElementById("spendAmount").value),
+                targetUsername: ""
             }, "spendResult");
         });
 
         document.getElementById("balanceForm").addEventListener("submit", function (e) {
             e.preventDefault();
             send("balance", {
-                username: document.getElementById("balanceUser").value,
-                password: document.getElementById("balancePass").value
+                targetUsername: ""
             }, "balanceResult");
+        });
+
+        document.getElementById("transferForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            send("transfer", {
+                fromUsername: "",
+                toUsername: document.getElementById("transferToUser").value,
+                amount: Number(document.getElementById("transferAmount").value)
+            }, "transferResult");
         });
     </script>
 }
