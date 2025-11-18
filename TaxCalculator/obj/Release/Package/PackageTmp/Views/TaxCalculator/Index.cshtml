@@ -1,0 +1,30 @@
+﻿@model TaxCalculator.Models.TaxInfoInput
+@{
+    ViewBag.Title = "Tax Calculator TryIt";
+}
+
+<h2>Tax Calculator</h2>
+
+@using (Html.BeginForm("Calculate", "TaxCalculator", FormMethod.Post))
+{
+    <div>
+        <label>Description: Type in your Income and State and recieve your total state tax, income tax, and net income</label>
+    </div>
+    <div>
+        <label>Service URL: </label>
+    </div>
+    <div>
+        <label>Method: CalculateTaxes(decimal income, string state)</label>
+    </div>
+    <div>
+        <label>Income:</label>
+        <input type="text" name="Income" required />
+    </div>
+
+    <div>
+        <label>State 2 letter Code (ex. Arizona = AZ):</label>
+        <input type="text" name="State" required />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Calculate</button>
+}
