@@ -5,39 +5,46 @@
     var captchaCode = ViewBag.CaptchaCode as string ?? string.Empty;
 }
 
+
+
 @using (Html.BeginForm("Register", "Account", FormMethod.Post))
 {
     @Html.ValidationSummary(false, "", new { @class = "text-danger" })
-
-    <div>
-        <label for="username">Username</label>
+    <h1>Create an Account</h1>
+    <div class="mb-3">
+        <label for="username">Username</label><br />
         <input type="text" id="username" name="username" value="@username" required />
     </div>
 
-    <div>
-        <label for="password">Password</label>
-        <div>
+    <div class="mb-3">
+        <label for="password">Password</label><br />
+        <div class="input-group">
             <input type="password" id="password" name="password" required />
-            <button type="button" id="suggestPassword" class="btn btn-secondary">Suggest Password</button>
-            <button type="button" id="togglePassword" class="btn btn-secondary">Show</button>
+            <button type="button" id="togglePassword" class="btn btn-outline-secondary">
+                Show
+            </button>
+            <button type="button" id="suggestPassword" class="btn btn-outline-secondary">
+                Suggest Password
+            </button>
         </div>
     </div>
 
-    <div>
-        <label for="confirmPassword">Confirm Password</label>
+    <div class="mb-3">
+        <label for="confirmPassword">Confirm Password</label><br />
         <input type="password" id="confirmPassword" name="confirmPassword" required />
     </div>
 
-    <div>
-        <label>Captcha</label>
+    <div class="mb-3">
+        <label class="form-label">Captcha</label>
         <div>
-            <img id="captchaImage" src="@captchaUrl" alt="Captcha" />
-            <button type="button" id="refreshCaptcha" class="btn btn-secondary">Refresh</button>
+            <img id="captchaImage" src="@captchaUrl" alt="Captcha" class="me-2 border" />
+            <button type="button" id="refreshCaptcha" class="btn btn-outline-secondary">
+                Refresh
+            </button>
         </div>
         <input type="hidden" id="captchaAnswer" name="captchaAnswer" value="@captchaCode" />
-        <input type="text" id="captchaText" name="captchaText" maxlength="5" required />
+        <input type="text" id="captchaText" name="captchaText" maxlength="5" class="form-control" placeholder="Enter the text from the image" required />
     </div>
-
     <button type="submit" class="btn btn-primary">Create Account</button>
 }
 
