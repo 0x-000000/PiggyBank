@@ -1,0 +1,65 @@
+@{
+    ViewBag.Title = "Interest Calculator";
+}
+
+<h2>Interest Calculator</h2>
+
+<form id="interestForm">
+    <p>Balance <input type="number" id="balance" step="0.01" required /></p>
+    <p>Annual Rate (%) <input type="number" id="rate" step="0.01" required /></p>
+    <p>Years <input type="number" id="years" min="0" required /></p>
+    <p>Compounds / Year <input type="number" id="compounds" min="1" value="12" required /></p>
+    <p><button type="submit">Calculate</button></p>
+</form>
+
+<p id="interestResult"></p>
+
+@section Scripts {
+    <script>
+        (function () {
+            var form = document.getElementById("interestForm");
+            var output = document.getElementById("interestResult");
+            var endpoint = '@Url.Action("Calculate", "Interest")';
+
+            if (!form || !output) {
+                return;
+            }
+
+            form.addEventListener("submit", function (e) {
+                e.preventDefault();
+
+                var payload = {
+                    balance: parseFloat(document.getElementById("balance").value),
+                    rate: parseFloat(document.getElementById("rate").value),
+                    years: parseInt(document.getElementById("years").value, 10),
+                    compoundsPerYear: parseInt(document.getElementById("compounds").value, 10)
+                };
+
+                if (isNaN(payload.balance) || isNaN(payload.rate) || isNaN(payload.years) || isNaN(payload.compoundsPerYear)) {
+                    output.textContent = "Please type numbers in every box.";
+                    return;
+                }
+
+                output.textContent = "Calling service...";
+
+                fetch(endpoint, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                })
+                    .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+                    .then(function (response) {
+                        if (!response.ok) {
+                            output.textContent = response.data && response.data.error ? response.data.error : "Something broke????";
+                            return;
+                        }
+
+                        output.textContent = "Calculated Interest: $" + response.data.result;
+                    })
+                    .catch(function (err) {
+                        output.textContent = err.message || "Network fail";
+                    });
+            });
+        })();
+    </script>
+}
