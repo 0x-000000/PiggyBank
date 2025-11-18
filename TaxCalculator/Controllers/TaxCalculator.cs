@@ -18,7 +18,7 @@ namespace TaxCalculator.Controllers
         }
         [HttpPost]
 
-        public ActionResult CalculateTaxes(TaxInfoInput request)
+        public ActionResult Calculate(TaxInfoInput request)
         {
             if (!ModelState.IsValid)
                 return View("Index", request);
