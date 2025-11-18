@@ -9,7 +9,7 @@ namespace Bank.Controllers
     public class InterestController : Controller
     {
         [HttpGet]
-        public ActionResult TryIt()
+        public ActionResult Index()
         {
             ViewBag.Title = "Interest Calculator";
             return View();
