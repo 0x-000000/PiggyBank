@@ -160,7 +160,7 @@ namespace Bank.Controllers
 
         private static string GenerateCaptchaCode()
         {
-            var chars = new char[6];
+            var chars = new char[5];
             for (var i = 0; i < chars.Length; i++)
             {
                 chars[i] = CharPool[RNG.Next(CharPool.Length)];
