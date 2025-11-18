@@ -2,4 +2,160 @@
     ViewBag.Title = "Bank";
 }
 
-<h1>Hello hackers!</h1>
+<section class="container mt-4">
+    <h1>PiggyBank Project Introduction!</h1>
+
+    <h2>Project Description</h2>
+    <p>
+        PiggyBank is an application platform that allows users to create accounts,<br />
+        login, check funds, deposit funds, spend funds, transfer funds to another user, <br />
+        calculate compound interest generated per year, and calculate income tax. <br />
+        <br />
+        Using the top navigation bar, you can test the register, member, and staff pages.<br />
+        Currently, for Assignment 5, these pages are incomplete, but implement all of the <br />
+        services we have made. Currently, the individual services have been uploaded to Webstrar, <br />
+        but the application as a whole has not been yet. <br />
+        <br />
+        To test the various functionalities of this service, you can click Member and Staff to access <br />
+        their respective sign in pages. To register a member account, you can use the Register page. <br />
+        The staff account provided is "TA" with a password of "Cse445!" After logging in, you can test <br />
+        the various functions in the Member/Staff pages. <br />
+        <br />
+        <br />
+        The individual web services can be tested from the top navigation bar <br />
+        The contributions for the services are as follows:<br />
+        <br />
+        Miles: Password Generator <br />
+        &nbsp;&nbsp;&nbsp;&nbsp;GeneratePassword(int numOfSection) -> JSON<br />
+        Alex: Compound Interest Calculator <br />
+        &nbsp;&nbsp;&nbsp;&nbsp;CalculateCompoundInterest(double balance, double annualIntRatePercent, int years, int compoundsPerYear) -> double <br />
+        Chase: Income Tax Calculator <br />
+        &nbsp;&nbsp;&nbsp;&nbsp;CalculateTaxes(decimal income, string state) -> double <br />
+        <br />
+        The contribution from all members is 33% <br />
+        Here is the table for contributions <br />
+        <br />
+    </p>
+
+    <h2>Application and Components Summary</h2>
+
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Provider name</th>
+                <th>Page / component type</th>
+                <th>Component description (inputs / outputs)</th>
+                <th>Implementation / where used</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Alex, Miles, Chase</td>
+                <td>cshtml page and server controls</td>
+                <td>Default public page HTML design and C# code-behind.</td>
+                <td>Used as the public landing page of the site.</td>
+            </tr>
+            <tr>
+                <td>Chase</td>
+                <td>Global.asax</td>
+                <td>Application start event handler.</td>
+                <td>C# code as script in Global.asax, runs on application startup.</td>
+            </tr>
+            <tr>
+                <td>Alex</td>
+                <td>User control - Login page (members/staff)</td>
+                <td>C# code-behind GUI for login.</td>
+                <td>Linked to the member/staff login page.</td>
+            </tr>
+            <tr>
+                <td>Chase</td>
+                <td>User control - Signup/Register page</td>
+                <td>C# code-behind GUI for registration.</td>
+                <td>Linked to signup/register page to create new accounts.</td>
+            </tr>
+            <tr>
+                <td>Miles</td>
+                <td>REST API service</td>
+                <td>
+                    Input: sections (int)<br />
+                    Output: section-divided password (string)
+                </td>
+                <td>Password generator using local components.</td>
+            </tr>
+            <tr>
+                <td>Miles</td>
+                <td>DLL</td>
+                <td>Hashing encryption/decryption library.</td>
+                <td>Implemented as a class library and used by local components.</td>
+            </tr>
+            <tr>
+                <td>Alex</td>
+                <td>SVC service - Interest Calculator</td>
+                <td>
+                    Input: balance and rate (float), years and compounds per year (int)<br />
+                    Output: interest (float)
+                </td>
+                <td>
+                    Uses local components; displayed in the user view to show
+                    interest based on current balance.
+                </td>
+            </tr>
+            <tr>
+                <td>Chase</td>
+                <td>SVC service - Tax Calculator</td>
+                <td>Input: annual income; Output: calculated tax.</td>
+                <td>
+                    Uses local components; used in user view to quickly calculate tax
+                    from the user's annual income.
+                </td>
+            </tr>
+            <tr>
+                <td>Alex</td>
+                <td>Cookies</td>
+                <td>Stores user ID and role.</td>
+                <td>
+                    GUI design and C# code-behind using HTTP cookies library;
+                    linked to login pages.
+                </td>
+            </tr>
+            <tr>
+                <td>Miles</td>
+                <td>User control - User Authentication</td>
+                <td>Authentication GUI and logic.</td>
+                <td>
+                    Used on login page alongside cookies; checks info against XML file.
+                </td>
+            </tr>
+            <tr>
+                <td>Miles</td>
+                <td>JSON storage</td>
+                <td>Stores account information.</td>
+                <td>Uses local components to persist user info in JSON.</td>
+            </tr>
+            <tr>
+                <td>Chase</td>
+                <td>User control - Account Register/Signup</td>
+                <td>GUI for user registration, storing into JSON/XML.</td>
+                <td>
+                    Uses local services to place info into JSON / XML storage.
+                </td>
+            </tr>
+            <tr>
+                <td>Miles</td>
+                <td>SVC - Captcha helper service</td>
+                <td>Captcha code generator/helper/verifier.</td>
+                <td>
+                    Used to verify users during account registration; uses ASU services.
+                </td>
+            </tr>
+            <tr>
+                <td>Alex</td>
+                <td>User control - Member/Staff Page View</td>
+                <td>GUI for member/staff view.</td>
+                <td>
+                    Uses cookies to determine user and retrieves info from JSON database.
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
