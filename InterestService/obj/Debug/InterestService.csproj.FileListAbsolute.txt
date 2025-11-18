@@ -1,0 +1,7 @@
+C:\Users\AlexW\Documents\GitHub\PiggyBank\InterestService\bin\InterestService.dll.config
+C:\Users\AlexW\Documents\GitHub\PiggyBank\InterestService\bin\InterestService.dll
+C:\Users\AlexW\Documents\GitHub\PiggyBank\InterestService\bin\InterestService.pdb
+C:\Users\AlexW\Documents\GitHub\PiggyBank\InterestService\obj\Debug\InterestService.csproj.AssemblyReference.cache
+C:\Users\AlexW\Documents\GitHub\PiggyBank\InterestService\obj\Debug\InterestService.csproj.CoreCompileInputs.cache
+C:\Users\AlexW\Documents\GitHub\PiggyBank\InterestService\obj\Debug\InterestService.dll
+C:\Users\AlexW\Documents\GitHub\PiggyBank\InterestService\obj\Debug\InterestService.pdb
