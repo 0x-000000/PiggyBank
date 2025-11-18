@@ -1,6 +1,6 @@
+using PasswordGenerator.Configuration;
 using System;
 using System.Web.Http;
-using PasswordGenerator.Configuration;
 
 namespace PasswordGenerator
 {

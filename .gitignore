@@ -1,5 +1,8 @@
+[Bb]in/
+[Oo]bj/
 packages/
 .vs/
 *.suo
 *.json
+*.user
 *.xml

@@ -1,5 +1,8 @@
 <Solution>
   <Project Path="Bank/Bank.csproj" Id="c91104b4-521b-445b-aa14-5e930c855294" />
   <Project Path="InterestService/InterestService.csproj" Id="4d85f33b-2fe5-473c-b744-66b311e16ede" />
-  <Project Path="PasswordGenerator/PasswordGenerator.csproj" Id="a0be0822-9460-47b7-b7fa-0ea41e243730" />
+  <Project Path="PasswordGenerator/PasswordGenerator.csproj"
+    Id="a0be0822-9460-47b7-b7fa-0ea41e243730" />
+  <Project Path="TaxCalculator/TaxCalculator.csproj"
+    Id="D3D90788-4B85-4C49-BC70-CD627E1BFFD4" />
 </Solution>
