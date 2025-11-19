@@ -43,10 +43,9 @@ namespace Bank.Models
     public class BankDatabase
     {
         // resolve windows file path for database.xml
-        private static string GetXmlPath()
+        private static string GetPath(string virtualPath)
         {
-            // rug pulling is crazy
-            var path = HostingEnvironment.MapPath("~/App_Data/Account.xml");
+            var path = HostingEnvironment.MapPath(virtualPath);
 
             if (string.IsNullOrEmpty(path))
             {
@@ -62,19 +61,28 @@ namespace Bank.Models
             return path;
         }
 
-        //read accounts
-        public static List<BankAccount> LoadAccounts()
+        // rug pull is crazy
+        private static string GetMemberPath()
         {
-            var xmlPath = GetXmlPath();
-            if (!File.Exists(xmlPath))
+            return GetPath("~/App_Data/Member.xml");
+        }
+
+        private static string GetStaffPath()
+        {
+            return GetPath("~/App_Data/Staff.xml");
+        }
+
+        private static List<BankAccount> LoadFromFile(string path, string role)
+        {
+            if (!File.Exists(path))
             {
-                File.WriteAllText(xmlPath, "<Accounts></Accounts>");
+                File.WriteAllText(path, "<Accounts></Accounts>");
                 return new List<BankAccount>();
             }
 
             try
             {
-                var doc = XDocument.Load(xmlPath);
+                var doc = XDocument.Load(path);
                 if (doc.Root == null)
                 {
                     return new List<BankAccount>();
@@ -86,7 +94,6 @@ namespace Bank.Models
                     var username = (string)node.Element("Username");
                     var password = (string)node.Element("Password");
                     var balanceText = (string)node.Element("Balance");
-                    var typeText = (string)node.Element("AccountType");
 
                     double bal = 0;
                     double.TryParse(balanceText, out bal);
@@ -96,7 +103,7 @@ namespace Bank.Models
                         Username = username,
                         Password = password,
                         Balance = bal,
-                        AccountType = string.IsNullOrWhiteSpace(typeText) ? "member" : typeText
+                        AccountType = role
                     });
                 }
 
@@ -104,13 +111,20 @@ namespace Bank.Models
             }
             catch
             {
-                // return empty list fallback
                 return new List<BankAccount>();
             }
         }
 
-        //write accounts
-        public static void SaveAccounts(IEnumerable<BankAccount> accounts)
+        //read accounts
+        public static List<BankAccount> LoadAccounts()
+        {
+            var accounts = new List<BankAccount>();
+            accounts.AddRange(LoadFromFile(GetMemberPath(), "member"));
+            accounts.AddRange(LoadFromFile(GetStaffPath(), "admin"));
+            return accounts;
+        }
+
+        private static void SaveList(IEnumerable<BankAccount> accounts, string path)
         {
             var doc = new XDocument();
             var root = new XElement("Accounts");
@@ -123,15 +137,38 @@ namespace Bank.Models
                     root.Add(new XElement("BankAccount",
                         new XElement("Username", account?.Username),
                         new XElement("Password", account?.Password),
-                        new XElement("Balance", account?.Balance ?? 0),
-                        new XElement("AccountType", string.IsNullOrWhiteSpace(account?.AccountType) ? "member" : account.AccountType)
+                        new XElement("Balance", account?.Balance ?? 0)
                     ));
                 }
             }
 
-            doc.Save(GetXmlPath());
+            doc.Save(path);
         }
 
+        //write accounts
+        public static void SaveAccounts(IEnumerable<BankAccount> accounts)
+        {
+            var members = new List<BankAccount>();
+            var staff = new List<BankAccount>();
+
+            if (accounts != null)
+            {
+                foreach (var account in accounts)
+                {
+                    if (account != null && string.Equals(account.AccountType, "admin", StringComparison.OrdinalIgnoreCase))
+                    {
+                        staff.Add(account);
+                    }
+                    else
+                    {
+                        members.Add(account);
+                    }
+                }
+            }
+
+            SaveList(members, GetMemberPath());
+            SaveList(staff, GetStaffPath());
+        }
     }
 
     public class BankSystem
