@@ -5,7 +5,7 @@
 }
 
 <style>
-    .member-view {
+    .master-view {
         margin-top: 20px;
         font-family: "Segoe UI", Arial, sans-serif;
     }
@@ -18,7 +18,7 @@
         display: flex;
         align-items: flex-start;
         gap: 80px;
-        margin-bottom: 28px;
+        margin-bottom: 15px;
     }
 
     .inner-row {
@@ -28,7 +28,7 @@
         margin-bottom: 10px;
     }
 
-    .member-panel {
+    .view-panel {
         padding: 12px 16px;
         border: 1px solid #ddd;
         border-radius: 4px;
@@ -36,15 +36,15 @@
         min-width: 220px;
     }
 
-    .member-panel p {
-        margin: 4px 0;
-    }
+        .view-panel p {
+            margin: 4px 0;
+        }
 
-    .member-panel h3 {
-        margin-top: 0;
-        margin-bottom: 10px;
-        font-size: 1.3rem;
-    }
+        .view-panel h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
 
     .input-row {
         display: flex;
@@ -54,24 +54,24 @@
         margin: 4px 0;
     }
 
-    .input-row > * {
-        margin: 0;
-        line-height: 1.2;
-    }
+        .input-row > * {
+            margin: 0;
+            line-height: 1.2;
+        }
 
-    .input-row input[type="number"] {
-        max-width: 120px;
-        text-align: right;
-    }
+        .input-row input[type="number"] {
+            max-width: 120px;
+            text-align: right;
+        }
 
-    .input-row input[type="text"] {
-        max-width: 160px;
-        text-align: right;
-    }
+        .input-row input[type="text"] {
+            max-width: 160px;
+            text-align: right;
+        }
 
-    .input-row span {
-        margin-bottom: 2px;
-    }
+        .input-row span {
+            margin-bottom: 2px;
+        }
 
     .textarea1-output {
         width: 200px;
@@ -85,7 +85,7 @@
 
     .textarea2-output {
         width: 200px;
-        height: 164px;
+        height: 160px;
         border: 1px solid #ccc;
         border-radius: 4px;
         padding: 4px 6px;
@@ -124,14 +124,14 @@
     }
 </style>
 
-<div class="member-view">
+<div class="master-view">
     <p class="greeting">
         Hello, @username (@type)
     </p>
 
     <!-- Row 1 -->
-    <div class="outer-row">
-        <div class="member-panel">
+    <div class="outer-row mb-4">
+        <div class="view-panel">
             <h3>Account Balance</h3>
             <form id="balanceForm">
                 <p>
@@ -151,9 +151,9 @@
     <!-- Row 2 -->
     <div class="outer-row">
         <!-- Deposit Panel -->
-        <div class="member-panel">
+        <div class="view-panel">
             <div class="inner-row">
-                <div class="member-panel">
+                <div class="view-panel">
                     <h3>Deposit</h3>
                     <form id="depositForm">
                         <p class="input-row mb-1">
@@ -176,9 +176,9 @@
         </div>
 
         <!-- Withdraw Panel -->
-        <div class="member-panel">
+        <div class="view-panel">
             <div class="inner-row">
-                <div class="member-panel">
+                <div class="view-panel">
                     <h3>Withdraw</h3>
                     <form id="spendForm">
                         <p class="input-row mb-1">
@@ -204,9 +204,9 @@
     <!-- Row 3 -->
     <div class="outer-row">
         <!-- Transfer Panel -->
-        <div class="member-panel">
+        <div class="view-panel">
             <div class="inner-row">
-                <div class="member-panel">
+                <div class="view-panel">
                     <h3>Transfer</h3>
                     <form id="transferForm">
                         <p class="input-row">
@@ -225,9 +225,7 @@
                     </form>
                 </div>
                 <div>
-                    <textarea id="transferResult"
-                              class="textarea2-output"
-                              readonly></textarea>
+                    <textarea id="transferResult" class="textarea2-output" readonly></textarea>
                 </div>
             </div>
         </div>
