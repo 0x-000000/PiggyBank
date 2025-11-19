@@ -15,8 +15,11 @@
         <div class="container">
             @Html.ActionLink("Piggy Bank", "Index", "Home", new { area = "" }, new { @class = "navbar-brand py-0" })
             @{
-                var username = ViewBag.Username as string ?? "";
-                var type = ViewBag.AccountType as string ?? "";
+                var userCookie = Request.Cookies["user"];
+                var typeCookie = Request.Cookies["role"];
+                bool isLoggedIn = userCookie != null && !string.IsNullOrEmpty(userCookie.Value);
+                string username = isLoggedIn ? userCookie.Value : "";
+                string type = typeCookie?.Value ?? "";
             }
             <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
                     title="Toggle navigation" aria-controls="navbarSupportedContent" aria-expanded="false"
@@ -29,10 +32,13 @@
                     <li>@Html.ActionLink("Member", "Index", "Member", new { area = "" }, new { @class = "nav-link py-0" })</li>
                     <li>@Html.ActionLink("Staff", "Index", "Staff", new { area = "" }, new { @class = "nav-link py-0" })</li>
                     <li>@Html.ActionLink("Interest", "Index", "Interest", new { area = "" }, new { @class = "nav-link py-0" })</li>
-                    <li>@Html.ActionLink("Register", "Register", "Account", new { area = "" }, new { @class = "nav-link py-0" })</li>
+                    @if (!isLoggedIn)
+                    {
+                        <li>@Html.ActionLink("Register", "Register", "Account", new { area = "" }, new { @class = "nav-link py-0" })</li>
+                    }
                 </ul>
 
-                @if (!string.IsNullOrEmpty(username))
+                @if (isLoggedIn)
                 {
                     <div class="d-flex align-items-center ms-auto">
                         <span class="navbar-text text-white me-3 py-0">
