@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Tax Calculator</title>
+        <style>
+            body {
+                font-family: Arial, Helvetica, sans-serif;
+                margin: 2rem auto;
+                max-width: 640px;
+                line-height: 1.4;
+            }
+
+            label {
+                display: block;
+                margin-top: 0.75rem;
+            }
+
+            input,
+            button,
+            textarea {
+                font-size: 1rem;
+            }
+
+            #results {
+                border: 1px solid #ccc;
+                padding: 1rem;
+                margin-top: 1.5rem;
+                background-color: #f6f6f6;
+            }
+
+            #status {
+                margin-top: 1rem;
+                color: #c00;
+                white-space: pre-wrap;
+            }
+        </style>
+    </head>
+    <body>
+        <h2>Tax Calculator</h2>
+        <p>
+            Description: Type in your Income and State and recieve your total
+            state tax, income tax, and net income
+        </p>
+        <p>
+            Service URL:
+            <a id="serviceUrl" target="_blank" rel="noopener noreferrer"></a>
+        </p>
+        <p>Method: CalculateTaxes(decimal income, string state) -> JSON</p>
+
+        <form id="taxForm">
+            <label>
+                Income:
+                <input type="number" id="income" min="0" step="0.01" required />
+            </label>
+            <label>
+                State 2 letter Code (ex. Arizona = AZ):
+                <input type="text" id="state" maxlength="2" required />
+            </label>
+            <p>
+                <button type="submit">Calculate</button>
+            </p>
+        </form>
+
+        <section id="results" hidden>
+            <h3>Your Tax Results</h3>
+            <p><strong>Federal Tax:</strong> <span id="federalTax"></span></p>
+            <p><strong>State Tax:</strong> <span id="stateTax"></span></p>
+            <p><strong>Total Tax:</strong> <span id="totalTax"></span></p>
+            <p><strong>Net Income:</strong> <span id="netIncome"></span></p>
+        </section>
+
+        <div id="status" role="alert"></div>
+
+        <script>
+            const incomeInput = document.getElementById("income");
+            const stateInput = document.getElementById("state");
+            const serviceUrlLink = document.getElementById("serviceUrl");
+            const statusEl = document.getElementById("status");
+            const resultsSection = document.getElementById("results");
+
+            const resultFields = {
+                federalTax: document.getElementById("federalTax"),
+                stateTax: document.getElementById("stateTax"),
+                totalTax: document.getElementById("totalTax"),
+                netIncome: document.getElementById("netIncome"),
+            };
+
+            const basePath = window.location.pathname.replace(
+                /TryIt\.html$/i,
+                ""
+            );
+            const baseUrl = `${window.location.origin}${basePath}`;
+            const serviceUrl = `${baseUrl}api/tax`;
+
+            serviceUrlLink.href = serviceUrl;
+            serviceUrlLink.textContent = serviceUrl;
+
+            const currency = new Intl.NumberFormat("en-US", {
+                style: "currency",
+                currency: "USD",
+            });
+
+            document
+                .getElementById("taxForm")
+                .addEventListener("submit", async (event) => {
+                    event.preventDefault();
+                    resultsSection.hidden = true;
+                    statusEl.textContent = "Calculating...";
+
+                    const payload = {
+                        income: parseFloat(incomeInput.value),
+                        state: stateInput.value.trim().toUpperCase(),
+                    };
+
+                    try {
+                        if (Number.isNaN(payload.income)) {
+                            throw new Error("Income must be a valid number.");
+                        }
+
+                        const response = await fetch(serviceUrl, {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify(payload),
+                        });
+
+                        const text = await response.text();
+                        let body = null;
+
+                        try {
+                            body = text ? JSON.parse(text) : null;
+                        } catch {
+                            body = null;
+                        }
+
+                        if (!response.ok) {
+                            const serverMessage =
+                                body?.Message ||
+                                body?.message ||
+                                body?.error ||
+                                text ||
+                                response.statusText;
+                            throw new Error(serverMessage);
+                        }
+
+                        if (!body || typeof body !== "object") {
+                            throw new Error(
+                                "Unexpected response from service."
+                            );
+                        }
+
+                        const normalized = {
+                            federalTax: body.FederalTax ?? body.federalTax ?? 0,
+                            stateTax: body.StateTax ?? body.stateTax ?? 0,
+                            totalTax: body.TotalTax ?? body.totalTax ?? 0,
+                            netIncome: body.NetIncome ?? body.netIncome ?? 0,
+                        };
+
+                        resultFields.federalTax.textContent = currency.format(
+                            normalized.federalTax
+                        );
+                        resultFields.stateTax.textContent = currency.format(
+                            normalized.stateTax
+                        );
+                        resultFields.totalTax.textContent = currency.format(
+                            normalized.totalTax
+                        );
+                        resultFields.netIncome.textContent = currency.format(
+                            normalized.netIncome
+                        );
+
+                        statusEl.textContent = "";
+                        resultsSection.hidden = false;
+                    } catch (err) {
+                        resultsSection.hidden = true;
+                        statusEl.textContent = `Error: ${err.message}`;
+                    }
+                });
+        </script>
+    </body>
+</html>

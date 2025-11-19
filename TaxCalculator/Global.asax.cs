@@ -1,15 +1,13 @@
-﻿using System.Web.Mvc;
-using System.Web.Routing;
-using TaxCalculator.App_Start;
+using System.Web.Http;
+using TaxCalculator.Configuration;
 
 namespace TaxCalculator
 {
-    public class WebApiApplication : System.Web.HttpApplication
+    public class Global : System.Web.HttpApplication
     {
         protected void Application_Start()
         {
-            AreaRegistration.RegisterAllAreas();
-            RouteConfig.RegisterRoutes(RouteTable.Routes);
+            GlobalConfiguration.Configure(WebAPIConfig.Register);
         }
     }
 }
