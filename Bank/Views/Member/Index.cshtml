@@ -6,25 +6,20 @@
 
 <p>Hello, @username (@type)</p>
 
-@using (Html.BeginForm("Logout", "Account", FormMethod.Post))
-{
-    <button type="submit">Log Out</button>
-}
-
 <div>
     <h3>Deposit</h3>
     <form id="depositForm">
         <p>Amount <input type="number" id="depositAmount" required /></p>
-        <p><button type="submit">Send</button></p>
+        <p><button type="submit">Deposit</button></p>
     </form>
     <textarea id="depositResult" readonly></textarea>
 </div>
 
 <div>
-    <h3>Spend</h3>
+    <h3>Withdraw</h3>
     <form id="spendForm">
         <p>Amount <input type="number" id="spendAmount" required /></p>
-        <p><button type="submit">Send</button></p>
+        <p><button type="submit">Withdraw</button></p>
     </form>
     <textarea id="spendResult" readonly></textarea>
 </div>
@@ -69,6 +64,8 @@
                 amount: Number(document.getElementById("depositAmount").value),
                 targetUsername: ""
             }, "depositResult");
+
+            document.getElementById("depositAmount").value = 0;
         });
 
         document.getElementById("spendForm").addEventListener("submit", function (e) {
@@ -77,6 +74,8 @@
                 amount: Number(document.getElementById("spendAmount").value),
                 targetUsername: ""
             }, "spendResult");
+
+            document.getElementById("spendAmount").value = 0;
         });
 
         document.getElementById("balanceForm").addEventListener("submit", function (e) {
@@ -93,6 +92,8 @@
                 toUsername: document.getElementById("transferToUser").value,
                 amount: Number(document.getElementById("transferAmount").value)
             }, "transferResult");
+
+            document.getElementById("transferAmount").value = 0;
         });
     </script>
 }
