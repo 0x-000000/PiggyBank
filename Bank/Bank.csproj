@@ -152,6 +152,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\MemberController.cs" />
     <Compile Include="Controllers\StaffController.cs" />
+    <Compile Include="Controllers\TaxController.cs" />
     <Compile Include="Models\Bank.cs" />
     <Compile Include="Models\Credentials.cs" />
     <Compile Include="Models\InterestCalculationRequest.cs" />
@@ -224,6 +225,7 @@
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Staff\Index.cshtml" />
     <Content Include="Views\Interest\Index.cshtml" />
+    <Content Include="Views\Tax\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -1,0 +1,177 @@
+@{
+    ViewBag.Title = "Tax Calculator";
+}
+
+<style>
+    .view-panel {
+        flex: 1;
+        align-items: stretch;
+        width: 400px;
+        padding: 12px 16px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: #f8f9fa;
+        min-width: 220px;
+        max-width: 735px;
+    }
+
+        .view-panel p {
+            margin: 4px 0;
+        }
+
+    .input-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin: 4px 0;
+    }
+
+        .input-row > * {
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .input-row input[type="number"] {
+            max-width: 160px;
+            text-align: right;
+        }
+
+        .input-row input[type="text"] {
+            max-width: 160px;
+            text-transform: uppercase;
+            text-align: left;
+        }
+
+    .button-row {
+        margin-top: 8px;
+    }
+
+    .amount-input {
+        border-radius: 4px;
+        border: 1px solid #303030;
+        padding: 2px 6px;
+    }
+
+        .amount-input::-webkit-outer-spin-button,
+        .amount-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .amount-input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+    .result-line {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        margin: 4px 0;
+        font-weight: 600;
+    }
+</style>
+
+<h2>Tax Calculator</h2>
+<div class="view-panel">
+    <form id="taxForm">
+        <p class="input-row">
+            <span>Income</span>
+            <input type="number" id="income" class="amount-input" min="0" step="0.01" placeholder="0" required />
+        </p>
+        <p class="input-row">
+            <span>State (2 letters)</span>
+            <input type="text" id="state" class="amount-input" maxlength="2" placeholder="AZ" required />
+        </p>
+        <p class="button-row d-flex align-items-center">
+            <button type="submit" class="btn btn-secondary" style="padding: 0.1rem 0.5rem;">Calculate</button>
+            <label id="taxStatus" class="ms-auto"></label>
+        </p>
+    </form>
+
+    <div class="mt-3" id="taxResults" hidden>
+        <p class="result-line">
+            <span>Federal Tax</span>
+            <span id="federalTax">$0.00</span>
+        </p>
+        <p class="result-line">
+            <span>State Tax</span>
+            <span id="stateTax">$0.00</span>
+        </p>
+        <p class="result-line">
+            <span>Total Tax</span>
+            <span id="totalTax">$0.00</span>
+        </p>
+        <p class="result-line">
+            <span>Net Income</span>
+            <span id="netIncome">$0.00</span>
+        </p>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            var form = document.getElementById("taxForm");
+            var statusEl = document.getElementById("taxStatus");
+            var resultPanel = document.getElementById("taxResults");
+            var endpoint = '@Url.Action("Calculate", "Tax")';
+            var money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
+
+            var resultFields = {
+                federalTax: document.getElementById("federalTax"),
+                stateTax: document.getElementById("stateTax"),
+                totalTax: document.getElementById("totalTax"),
+                netIncome: document.getElementById("netIncome")
+            };
+
+            if (!form) {
+                return;
+            }
+
+            form.addEventListener("submit", function (e) {
+                e.preventDefault();
+
+                var incomeVal = parseFloat(document.getElementById("income").value);
+                var stateVal = document.getElementById("state").value.trim().toUpperCase();
+
+                if (Number.isNaN(incomeVal)) {
+                    statusEl.textContent = "Please enter a valid income.";
+                    return;
+                }
+
+                statusEl.textContent = "Calling service...";
+                resultPanel.hidden = true;
+
+                fetch(endpoint, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ income: incomeVal, state: stateVal })
+                })
+                    .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+                    .then(function (response) {
+                        if (!response.ok) {
+                            statusEl.textContent = response.data && (response.data.error || response.data.Message)
+                                ? (response.data.error || response.data.Message)
+                                : "Tax service error.";
+                            return;
+                        }
+
+                        updateResults(response.data || {});
+                        statusEl.textContent = "";
+                        resultPanel.hidden = false;
+                    })
+                    .catch(function (err) {
+                        statusEl.textContent = err.message || "Request failed.";
+                    });
+            });
+
+            function updateResults(data) {
+                resultFields.federalTax.textContent = money.format(data.federalTax ?? data.FederalTax ?? 0);
+                resultFields.stateTax.textContent = money.format(data.stateTax ?? data.StateTax ?? 0);
+                resultFields.totalTax.textContent = money.format(data.totalTax ?? data.TotalTax ?? 0);
+                resultFields.netIncome.textContent = money.format(data.netIncome ?? data.NetIncome ?? 0);
+            }
+        })();
+    </script>
+}

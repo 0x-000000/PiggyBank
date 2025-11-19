@@ -39,15 +39,15 @@
         max-width: 735px;
     }
 
-        .view-panel p {
-            margin: 4px 0;
-        }
+    .view-panel p {
+        margin: 4px 0;
+    }
 
-        .view-panel h3 {
-            margin-top: 0;
-            margin-bottom: 10px;
-            font-size: 1.8rem;
-        }
+    .view-panel h3 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        font-size: 1.8rem;
+    }
 
     .input-row {
         display: flex;
@@ -57,24 +57,24 @@
         margin: 4px 0;
     }
 
-        .input-row > * {
-            margin: 0;
-            line-height: 1.2;
-        }
+    .input-row>* {
+        margin: 0;
+        line-height: 1.2;
+    }
 
-        .input-row input[type="number"] {
-            max-width: 120px;
-            text-align: right;
-        }
+    .input-row input[type="number"] {
+        max-width: 120px;
+        text-align: right;
+    }
 
-        .input-row input[type="text"] {
-            max-width: 180px;
-            text-align: right;
-        }
+    .input-row input[type="text"] {
+        max-width: 180px;
+        text-align: right;
+    }
 
-        .input-row span {
-            margin-bottom: 2px;
-        }
+    .input-row span {
+        margin-bottom: 2px;
+    }
 
     .textarea1-output {
         align-items: stretch;
@@ -109,15 +109,15 @@
         padding: 2px 6px;
     }
 
-        .amount-input::-webkit-outer-spin-button,
-        .amount-input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
+    .amount-input::-webkit-outer-spin-button,
+    .amount-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
 
-        .amount-input[type=number] {
-            -moz-appearance: textfield;
-        }
+    .amount-input[type=number] {
+        -moz-appearance: textfield;
+    }
 </style>
 
 <div class="master-view">
@@ -134,15 +134,18 @@
                     <form id="transferForm">
                         <p class="input-row">
                             <span>From Username (blank = yourself)</span>
-                            <input type="text" id="transferFromUser" class="amount-input mb-1" placeholder="Enter From Username" />
+                            <input type="text" id="transferFromUser" class="amount-input mb-1"
+                                placeholder="Enter From Username" />
                         </p>
                         <p class="input-row">
                             <span>To Username</span>
-                            <input type="text" id="transferToUser" class="amount-input mb-1" placeholder="Enter To Username" required />
+                            <input type="text" id="transferToUser" class="amount-input mb-1"
+                                placeholder="Enter To Username" required />
                         </p>
                         <p class="input-row">
                             <span>Amount</span>
-                            <input type="number" id="transferAmount" class="amount-input mb-1" placeholder="0" required />
+                            <input type="number" id="transferAmount" class="amount-input mb-1" placeholder="0"
+                                required />
                         </p>
                         <p class="button-row">
                             <button type="submit" class="btn btn-secondary" style="padding: 0.1rem 0.5rem;">
@@ -167,7 +170,8 @@
                     <form id="staffBalanceForm">
                         <p class="input-row">
                             <span>Target Username (blank = yourself) </span>
-                            <input type="text" id="staffBalanceUser" class="amount-input mb-1" placeholder="Enter Username" />
+                            <input type="text" id="staffBalanceUser" class="amount-input mb-1"
+                                placeholder="Enter Username" />
                         </p>
                         <p class="button-row">
                             <button type="submit" class="btn btn-secondary" style="padding: 0.1rem 0.5rem;">
@@ -186,7 +190,7 @@
 
 @section Scripts {
     <script>
-    var staffApiBase = '@Url.Content("~/api/bank/")';
+        var staffApiBase = '@Url.Content("~/api/bank/")';
 
         function run(endpoint, payload, outputId, transform) {
             var box = document.getElementById(outputId);

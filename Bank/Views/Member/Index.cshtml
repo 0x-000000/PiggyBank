@@ -36,15 +36,15 @@
         min-width: 220px;
     }
 
-        .view-panel p {
-            margin: 4px 0;
-        }
+    .view-panel p {
+        margin: 4px 0;
+    }
 
-        .view-panel h3 {
-            margin-top: 0;
-            margin-bottom: 10px;
-            font-size: 1.3rem;
-        }
+    .view-panel h3 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        font-size: 1.3rem;
+    }
 
     .input-row {
         display: flex;
@@ -54,24 +54,24 @@
         margin: 4px 0;
     }
 
-        .input-row > * {
-            margin: 0;
-            line-height: 1.2;
-        }
+    .input-row>* {
+        margin: 0;
+        line-height: 1.2;
+    }
 
-        .input-row input[type="number"] {
-            max-width: 120px;
-            text-align: right;
-        }
+    .input-row input[type="number"] {
+        max-width: 120px;
+        text-align: right;
+    }
 
-        .input-row input[type="text"] {
-            max-width: 160px;
-            text-align: right;
-        }
+    .input-row input[type="text"] {
+        max-width: 160px;
+        text-align: right;
+    }
 
-        .input-row span {
-            margin-bottom: 2px;
-        }
+    .input-row span {
+        margin-bottom: 2px;
+    }
 
     .textarea1-output {
         width: 200px;
@@ -158,7 +158,8 @@
                     <form id="depositForm">
                         <p class="input-row mb-1">
                             <span>Amount</span>
-                            <input type="number" id="depositAmount" class="amount-input mb-1" placeholder="0" required />
+                            <input type="number" id="depositAmount" class="amount-input mb-1" placeholder="0"
+                                required />
                         </p>
                         <p class="button-row">
                             <button type="submit" class="btn btn-secondary" style="padding: 0.1rem 0.5rem;">
@@ -168,9 +169,7 @@
                     </form>
                 </div>
 
-                <textarea id="depositResult"
-                          class="textarea1-output"
-                          readonly>
+                <textarea id="depositResult" class="textarea1-output" readonly>
                 </textarea>
             </div>
         </div>
@@ -193,9 +192,7 @@
                     </form>
                 </div>
                 <div>
-                    <textarea id="spendResult"
-                              class="textarea1-output"
-                              readonly></textarea>
+                    <textarea id="spendResult" class="textarea1-output" readonly></textarea>
                 </div>
             </div>
         </div>
@@ -211,11 +208,13 @@
                     <form id="transferForm">
                         <p class="input-row">
                             <span>Send to Username</span>
-                            <input type="text" id="transferToUser" class="amount-input mb-1" placeholder="Enter Username" required />
+                            <input type="text" id="transferToUser" class="amount-input mb-1"
+                                placeholder="Enter Username" required />
                         </p>
                         <p class="input-row mb-1">
                             <span>Amount</span>
-                            <input type="number" id="transferAmount" class="amount-input mb-1" placeholder="0" required />
+                            <input type="number" id="transferAmount" class="amount-input mb-1" placeholder="0"
+                                required />
                         </p>
                         <p class="button-row">
                             <button type="submit" class="btn btn-secondary" style="padding: 0.1rem 0.5rem;">

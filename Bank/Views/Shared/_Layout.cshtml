@@ -22,16 +22,20 @@
                 string type = typeCookie?.Value ?? "";
             }
             <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
-                    title="Toggle navigation" aria-controls="navbarSupportedContent" aria-expanded="false"
-                    aria-label="Toggle navigation">
+                title="Toggle navigation" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between">
                 <ul class="navbar-nav flex-grow-1">
-                    <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link py-0" })</li>
+                    <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link py-0" })
+                    </li>
                     <li>@Html.ActionLink("Member", "Index", "Member", new { area = "" }, new { @class = "nav-link py-0" })</li>
-                    <li>@Html.ActionLink("Staff", "Index", "Staff", new { area = "" }, new { @class = "nav-link py-0" })</li>
-                    <li>@Html.ActionLink("Interest", "Index", "Interest", new { area = "" }, new { @class = "nav-link py-0" })</li>
+                    <li>@Html.ActionLink("Staff", "Index", "Staff", new { area = "" }, new { @class = "nav-link py-0" })
+                    </li>
+                    <li>@Html.ActionLink("Interest", "Index", "Interest", new { area = "" }, new { @class = "nav-link                        py-0" })</li>
+                    <li>@Html.ActionLink("Tax", "Index", "Tax", new { area = "" }, new { @class = "nav-link py-0" })
+                    </li>
                     @if (!isLoggedIn)
                     {
                         <li>@Html.ActionLink("Register", "Register", "Account", new { area = "" }, new { @class = "nav-link py-0" })</li>
@@ -47,9 +51,9 @@
 
                         @using (Html.BeginForm("Logout", "Account", FormMethod.Post, new { @class = "d-inline" }))
                         {
-                            <button type="submit" 
-                                    class="btn btn-outline-light btn-sm d-flex align-items-center justify-content-center" 
-                                    style="padding-top: 0.1rem; padding-bottom: 0.125rem;">
+                            <button type="submit"
+                                class="btn btn-outline-light btn-sm d-flex align-items-center justify-content-center"
+                                style="padding-top: 0.1rem; padding-bottom: 0.125rem;">
                                 Log Out
                             </button>
                         }
