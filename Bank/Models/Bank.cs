@@ -10,6 +10,7 @@ namespace Bank.Models
     public class BankAccount
     {
         public string Username { get; set; }
+        public string Password { get; set; }
         public double Balance { get; set; }
         public string AccountType { get; set; }
     }
@@ -83,6 +84,7 @@ namespace Bank.Models
                 foreach (var node in doc.Root.Elements("BankAccount"))
                 {
                     var username = (string)node.Element("Username");
+                    var password = (string)node.Element("Password");
                     var balanceText = (string)node.Element("Balance");
                     var typeText = (string)node.Element("AccountType");
 
@@ -92,6 +94,7 @@ namespace Bank.Models
                     list.Add(new BankAccount
                     {
                         Username = username,
+                        Password = password,
                         Balance = bal,
                         AccountType = string.IsNullOrWhiteSpace(typeText) ? "member" : typeText
                     });
@@ -119,6 +122,7 @@ namespace Bank.Models
                 {
                     root.Add(new XElement("BankAccount",
                         new XElement("Username", account?.Username),
+                        new XElement("Password", account?.Password),
                         new XElement("Balance", account?.Balance ?? 0),
                         new XElement("AccountType", string.IsNullOrWhiteSpace(account?.AccountType) ? "member" : account.AccountType)
                     ));
@@ -154,24 +158,18 @@ namespace Bank.Models
                 return null;
             }
 
-            if (credentials.HasUser(username))
-            {
-                error = "Username already exists.";
-                return null;
-            }
-
             var role = string.Equals(accountType, "admin") ? "admin" : "member";
 
             var account = new BankAccount
             {
                 Username = username.Trim(),
+                Password = credentials.HashPassword(password),
                 Balance = 0,
                 AccountType = role
             };
 
             accounts.Add(account);
             BankDatabase.SaveAccounts(accounts);
-            credentials.WriteCredential(account.Username, password);
 
             return account;
         }
@@ -187,17 +185,18 @@ namespace Bank.Models
             }
 
             var accounts = BankDatabase.LoadAccounts();
-            if (!credentials.Validate(username, password))
-            {
-                error = "Invalid username or password.";
-                return null;
-            }
-
             var account = FindAccount(accounts, username);
 
             if (account == null)
             {
                 error = "Invalid username or password.";
+                return null;
+            }
+
+            if (!credentials.VerifyPassword(password, account.Password))
+            {
+                error = "Invalid username or password.";
+                return null;
             }
 
             return account;
@@ -218,14 +217,9 @@ namespace Bank.Models
         {
             var accounts = BankDatabase.LoadAccounts();
             var hasAnyAccount = accounts.Count > 0;
-            var hasCredentials = credentials.HasUser("TA");
 
-            if (hasAnyAccount || hasCredentials)
+            if (hasAnyAccount)
             {
-                if (!hasCredentials && hasAnyAccount)
-                {
-                    credentials.WriteCredential("TA", "Cse445!");
-                }
                 return;
             }
 
