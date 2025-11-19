@@ -188,47 +188,106 @@
     <script>
     var staffApiBase = '@Url.Content("~/api/bank/")';
 
-    function run(endpoint, payload, outputId, transform) {
-        var box = document.getElementById(outputId);
-        fetch(staffApiBase + endpoint, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
-        })
-            .then(function (res) { return res.text(); })
-            .then(function (text) {
-                var output = (typeof transform === "function") ? transform(text) : text;
-                if ("value" in box) {
-                    box.value = output;
-                } else {
-                    box.textContent = output;
-                }
+        function run(endpoint, payload, outputId, transform) {
+            var box = document.getElementById(outputId);
+            fetch(staffApiBase + endpoint, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
             })
-            .catch(function (err) {
-                if ("value" in box) {
-                    box.value = err.message;
-                } else {
-                    box.textContent = err.message;
+                .then(function (res) { return res.text(); })
+                .then(function (text) {
+                    var output = (typeof transform === "function") ? transform(text) : text;
+                    if ("value" in box) {
+                        box.value = output;
+                    } else {
+                        box.textContent = output;
+                    }
+                })
+                .catch(function (err) {
+                    if ("value" in box) {
+                        box.value = err.message;
+                    } else {
+                        box.textContent = err.message;
+                    }
+                });
+        }
+
+        function formatBalanceResponse(text) {
+            try {
+                var obj = JSON.parse(text);
+                var msg = obj.message;
+                var user = obj.username;
+                var num = obj.balance;
+                return msg + "\n" + user + "\n" + "$" + num.toFixed(2);
+            } catch (e) {
+                return text;
+            }
+        }
+
+        function formatTransferResponse(text) {
+            try {
+                var obj = JSON.parse(text);
+                var msg = obj.message || obj.Message || "";
+
+                var from = obj.from || {};
+                var to = obj.to || {};
+
+                var fromUser = from.username || "";
+                var fromBalance = (typeof from.balance === "number")
+                    ? from.balance.toFixed(2)
+                    : "";
+
+                var toUser = to.username || "";
+                var toBalance = (typeof to.balance === "number")
+                    ? to.balance.toFixed(2)
+                    : "";
+
+                var output = [];
+
+                if (msg) {
+                    output.push(msg);
                 }
-            });
-    }
 
-    document.getElementById("transferForm").addEventListener("submit", function (e) {
-        e.preventDefault();
-        run("transfer", {
-            fromUsername: document.getElementById("transferFromUser").value,
-            toUsername: document.getElementById("transferToUser").value,
-            amount: Number(document.getElementById("transferAmount").value)
-        }, "transferResult", formatDefaultResponse);
+                if (fromUser) {
+                    var fromLine = "From: \t" + fromUser + "\n";
+                    fromLine += "Balance - $" + fromBalance + "\n";
+                    output.push(fromLine);
+                }
 
-        document.getElementById("transferAmount").value = null;
-    });
+                if (toUser) {
+                    var toLine = "To: \t\t" + toUser + "\n";
+                    toLine += "Balance - $" + toBalance;
+                    output.push(toLine);
+                }
 
-    document.getElementById("staffBalanceForm").addEventListener("submit", function (e) {
-        e.preventDefault();
-        run("balance", {
-            targetUsername: document.getElementById("staffBalanceUser").value
-        }, "staffBalanceResult");
-    });
+                if (!output.length) {
+                    return text;
+                }
+
+                return output.join("\n");
+            } catch (e) {
+                return text;
+            }
+        }
+
+
+        document.getElementById("transferForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            run("transfer", {
+                fromUsername: document.getElementById("transferFromUser").value,
+                toUsername: document.getElementById("transferToUser").value,
+                amount: Number(document.getElementById("transferAmount").value)
+            }, "transferResult", formatTransferResponse);
+
+            document.getElementById("transferAmount").value = null;
+        });
+
+        document.getElementById("staffBalanceForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            run("balance", {
+                targetUsername: document.getElementById("staffBalanceUser").value
+            }, "staffBalanceResult", formatBalanceResponse);
+        });
     </script>
 }
