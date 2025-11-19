@@ -35,7 +35,7 @@
     <script>
         var staffApiBase = '@Url.Content("~/api/bank/")';
 
-        function run(endpoint, payload, outputId) {
+        function run(endpoint, payload, outputId, transform) {
             var box = document.getElementById(outputId);
             fetch(staffApiBase + endpoint, {
                 method: "POST",
@@ -43,8 +43,21 @@
                 body: JSON.stringify(payload)
             })
                 .then(function (res) { return res.text(); })
-                .then(function (text) { box.value = text; })
-                .catch(function (err) { box.value = err.message; });
+                .then(function (text) {
+                    var output = (typeof transform === "function") ? transform(text) : text;
+                    if ("value" in box) {
+                        box.value = output;
+                    } else {
+                        box.textContent = output;
+                    }
+                })
+                .catch(function (err) {
+                    if ("value" in box) {
+                        box.value = err.message;
+                    } else {
+                        box.textContent = err.message;
+                    }
+                });
         }
 
         document.getElementById("transferForm").addEventListener("submit", function (e) {
@@ -53,7 +66,9 @@
                 fromUsername: document.getElementById("transferFromUser").value,
                 toUsername: document.getElementById("transferToUser").value,
                 amount: Number(document.getElementById("transferAmount").value)
-            }, "transferResult");
+            }, "transferResult", formatDefaultResponse);
+
+            document.getElementById("transferAmount").value = null;
         });
 
         document.getElementById("staffBalanceForm").addEventListener("submit", function (e) {

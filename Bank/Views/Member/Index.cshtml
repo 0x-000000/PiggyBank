@@ -55,8 +55,8 @@
     }
 
     .input-row > * {
-        margin: 0; /* remove default paragraph/label margins */
-        line-height: 1.2; /* keeps text from looking “off-center” */
+        margin: 0;
+        line-height: 1.2;
     }
 
     .input-row input[type="number"] {
@@ -248,7 +248,6 @@
                 .then(function (res) { return res.text(); })
                 .then(function (text) {
                     var output = (typeof transform === "function") ? transform(text) : text;
-
                     if ("value" in box) {
                         box.value = output;
                     } else {
@@ -310,7 +309,7 @@
                 targetUsername: ""
             }, "spendResult", formatDefaultResponse);
 
-            document.getElementById("spendAmount").value = 0;
+            document.getElementById("spendAmount").value = null;
         });
 
         document.getElementById("balanceForm").addEventListener("submit", function (e) {
@@ -331,7 +330,7 @@
                 amount: Number(document.getElementById("transferAmount").value)
             }, "transferResult", formatDefaultResponse);
 
-            document.getElementById("transferAmount").value = 0;
+            document.getElementById("transferAmount").value = null;
         });
 
         send("balance",
