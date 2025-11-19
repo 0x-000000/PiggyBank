@@ -10,7 +10,7 @@ namespace Bank.Controllers
     public class AccountController : Controller
     {
         private readonly BankSystem bank = new BankSystem();
-        private static readonly char[] CharPool = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz0123456789@$%^()".ToCharArray();
+        private static readonly char[] CharPool = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz0123456789@$^()".ToCharArray();
         private static readonly Random RNG = new Random();
 
         [HttpGet]

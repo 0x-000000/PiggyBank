@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Web.Hosting;
+using System.Xml.Linq;
+using Newtonsoft.Json.Linq;
 
 namespace Bank.Models
 {
@@ -41,10 +43,12 @@ namespace Bank.Models
 
     public class BankDatabase
     {
-        //resolve windows file path for database.json
-        private static string GetPath()
+        // resolve windows file path for database.xml
+        private static string GetXmlPath()
         {
-            var path = HostingEnvironment.MapPath("~/App_Data/database.json");
+            // rug pulling is crazy
+            var path = HostingEnvironment.MapPath("~/App_Data/Account.xml");
+
             if (string.IsNullOrEmpty(path))
             {
                 throw new InvalidOperationException("Unable to resolve database path.");
@@ -59,33 +63,51 @@ namespace Bank.Models
             return path;
         }
 
-        //read accounts from json
+        //read accounts
         public static List<BankAccount> LoadAccounts()
         {
-            var path = GetPath();
+            var xmlPath = GetXmlPath();
 
-            //create new account list if file is empty or not exist
-            if (!File.Exists(path))
+            if (!File.Exists(xmlPath))
             {
-                File.WriteAllText(path, "[]");
+                File.WriteAllText(xmlPath, "<Accounts />");
                 return new List<BankAccount>();
             }
 
-            var json = File.ReadAllText(path);
-            if (string.IsNullOrWhiteSpace(json))
+            try
+            {
+                var xml = File.ReadAllText(xmlPath);
+                if (string.IsNullOrWhiteSpace(xml))
+                {
+                    return new List<BankAccount>();
+                }
+
+                var jObj = JObject.Parse(JsonConvert.SerializeXNode(XDocument.Parse(xml)));
+                var accountsToken = jObj["Accounts"]?["BankAccount"];
+
+                if (accountsToken == null)
+                {
+                    return new List<BankAccount>();
+                }
+
+                if (accountsToken is JArray arr)
+                {
+                    return arr.ToObject<List<BankAccount>>() ?? new List<BankAccount>();
+                }
+
+                var single = accountsToken.ToObject<BankAccount>();
+                return single == null ? new List<BankAccount>() : new List<BankAccount> { single };
+            }
+            catch
             {
                 return new List<BankAccount>();
             }
-
-            return JsonConvert.DeserializeObject<List<BankAccount>>(json) ?? new List<BankAccount>();
         }
 
-        //write accounts to json
+        //write accounts
         public static void SaveAccounts(IEnumerable<BankAccount> accounts)
         {
-            var path = GetPath();
-            var json = JsonConvert.SerializeObject(accounts, Formatting.Indented);
-            File.WriteAllText(path, json);
+            File.WriteAllText(GetXmlPath(), JsonConvert.DeserializeXNode(JsonConvert.SerializeObject(new { BankAccount = accounts ?? Enumerable.Empty<BankAccount>() }), "Accounts")?.ToString() ?? "<Accounts />");
         }
 
     }
