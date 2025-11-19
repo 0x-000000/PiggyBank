@@ -1,6 +1,7 @@
 [Bb]in/
 [Oo]bj/
 packages/
+PublishProfiles/
 .vs/
 *.suo
 *.json
