@@ -17,7 +17,7 @@
             <p>
                 Service URL: <a href="http://webstrar115.fulton.asu.edu/Page2/InterestService.svc">http://webstrar115.fulton.asu.edu/Page2/InterestService.svc</a></p>
             <p>
-                Method: CalculateCompoundInterest(double balance, double annualIntRatePercent, int years, int compoundsPerYear)</p>
+                Method: CalculateCompoundInterest(double balance, double annualIntRatePercent, int years, int compoundsPerYear) -> double</p>
             <p>
                 <asp:Label runat="server" AssociatedControlID="txtBalance" Text="Balance (principal):" />
                 <asp:TextBox runat="server" ID="txtBalance" />
