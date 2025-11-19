@@ -11,23 +11,50 @@
 
 <body>
 
-    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark py-1">
         <div class="container">
-            @Html.ActionLink("Piggy Bank", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+            @Html.ActionLink("Piggy Bank", "Index", "Home", new { area = "" }, new { @class = "navbar-brand py-0" })
+            @{
+                var userCookie = Request.Cookies["user"];
+                var typeCookie = Request.Cookies["role"];
+                bool isLoggedIn = userCookie != null && !string.IsNullOrEmpty(userCookie.Value);
+                string username = isLoggedIn ? userCookie.Value : "";
+                string type = typeCookie?.Value ?? "";
+            }
             <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
-                title="Toggle navigation" aria-controls="navbarSupportedContent" aria-expanded="false"
-                aria-label="Toggle navigation">
+                    title="Toggle navigation" aria-controls="navbarSupportedContent" aria-expanded="false"
+                    aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between">
                 <ul class="navbar-nav flex-grow-1">
-                    <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Member", "Index", "Member", new { area = "" }, new { @class = "nav-link" })
-                    </li>
-                    <li>@Html.ActionLink("Staff", "Index", "Staff", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Interest", "Index", "Interest", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Register", "Register", "Account", new { area = "" }, new { @class = "nav-link" })</li>
+                    <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link py-0" })</li>
+                    <li>@Html.ActionLink("Member", "Index", "Member", new { area = "" }, new { @class = "nav-link py-0" })</li>
+                    <li>@Html.ActionLink("Staff", "Index", "Staff", new { area = "" }, new { @class = "nav-link py-0" })</li>
+                    <li>@Html.ActionLink("Interest", "Index", "Interest", new { area = "" }, new { @class = "nav-link py-0" })</li>
+                    @if (!isLoggedIn)
+                    {
+                        <li>@Html.ActionLink("Register", "Register", "Account", new { area = "" }, new { @class = "nav-link py-0" })</li>
+                    }
                 </ul>
+
+                @if (isLoggedIn)
+                {
+                    <div class="d-flex align-items-center ms-auto">
+                        <span class="navbar-text text-white me-3 py-0">
+                            @username (@type)
+                        </span>
+
+                        @using (Html.BeginForm("Logout", "Account", FormMethod.Post, new { @class = "d-inline" }))
+                        {
+                            <button type="submit" 
+                                    class="btn btn-outline-light btn-sm d-flex align-items-center justify-content-center" 
+                                    style="padding-top: 0.1rem; padding-bottom: 0.125rem;">
+                                Log Out
+                            </button>
+                        }
+                    </div>
+                }
             </div>
         </div>
     </nav>

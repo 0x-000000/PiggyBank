@@ -15,7 +15,7 @@
             <p>
                 Description: Compound Interest Calculator</p>
             <p>
-                Service URL: <a href="http://webstrar115.fulton.asu.edu/Page2/InterestTryIt.aspx">http://webstrar115.fulton.asu.edu/Page2/InterestTryIt.aspx</a></p>
+                Service URL: <a href="http://webstrar115.fulton.asu.edu/Page2/InterestService.svc">http://webstrar115.fulton.asu.edu/Page2/InterestService.svc</a></p>
             <p>
                 Method: CalculateCompoundInterest(double balance, double annualIntRatePercent, int years, int compoundsPerYear)</p>
             <p>

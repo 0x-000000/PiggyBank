@@ -4,38 +4,191 @@
     var type = ViewBag.AccountType as string ?? "member";
 }
 
-<p>Hello, @username (@type)</p>
+<style>
+    .master-view {
+        margin-top: 20px;
+        font-family: "Segoe UI", Arial, sans-serif;
+    }
 
-@using (Html.BeginForm("Logout", "Account", FormMethod.Post))
-{
-    <button type="submit">Log Out</button>
-}
+    .greeting {
+        margin-bottom: 20px;
+    }
 
-<div>
-    <h3>Transfer</h3>
-    <form id="transferForm">
-        <p>From Username (blank = yourself) <input type="text" id="transferFromUser" /></p>
-        <p>To Username <input type="text" id="transferToUser" required /></p>
-        <p>Amount <input type="number" id="transferAmount" required /></p>
-        <p><button type="submit" class="btn btn-primary">Send</button></p>
-    </form>
-    <textarea id="transferResult" readonly></textarea>
-</div>
+    .outer-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 80px;
+        margin-bottom: 28px;
+    }
 
-<div>
-    <h3>Check Balance</h3>
-    <form id="staffBalanceForm">
-        <p>Target Username (blank = yourself) <input type="text" id="staffBalanceUser" /></p>
-        <p><button type="submit" class="btn btn-primary">Check</button></p>
-    </form>
-    <textarea id="staffBalanceResult" readonly></textarea>
+    .inner-row {
+        display: flex;
+        align-items: stretch;
+        gap: 20px;
+        margin-bottom: 10px;
+    }
+
+    .view-panel {
+        flex: 1;
+        align-items: stretch;
+        padding: 12px 16px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: #f8f9fa;
+        min-width: 220px;
+        max-width: 735px;
+    }
+
+        .view-panel p {
+            margin: 4px 0;
+        }
+
+        .view-panel h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+        }
+
+    .input-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin: 4px 0;
+    }
+
+        .input-row > * {
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .input-row input[type="number"] {
+            max-width: 120px;
+            text-align: right;
+        }
+
+        .input-row input[type="text"] {
+            max-width: 180px;
+            text-align: right;
+        }
+
+        .input-row span {
+            margin-bottom: 2px;
+        }
+
+    .textarea1-output {
+        align-items: stretch;
+        width: 200px;
+        height: 100%;
+        max-height: 160px;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 4px 6px;
+        resize: none;
+        font-size: 0.8rem;
+    }
+
+    .balance-output {
+        display: inline-block;
+        min-width: 200px;
+        padding: 2px 8px;
+        border: 1px solid #ccc;
+        text-align: right;
+        border-radius: 4px;
+        margin-bottom: 4px;
+    }
+
+    .button-row {
+        margin-top: 8px;
+    }
+
+    .amount-input {
+        border-radius: 4px;
+        border: 1px solid #000;
+        padding: 2px 6px;
+    }
+
+        .amount-input::-webkit-outer-spin-button,
+        .amount-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .amount-input[type=number] {
+            -moz-appearance: textfield;
+        }
+</style>
+
+<div class="master-view">
+    <p class="greeting">
+        Hello, @username (@type)
+    </p>
+
+    <!-- Row 1 -->
+    <div class="outer-row">
+        <div class="view-panel">
+            <div class="inner-row">
+                <div class="view-panel">
+                    <h3>Transfer</h3>
+                    <form id="transferForm">
+                        <p class="input-row">
+                            <span>From Username (blank = yourself)</span>
+                            <input type="text" id="transferFromUser" class="amount-input mb-1" placeholder="Enter From Username" />
+                        </p>
+                        <p class="input-row">
+                            <span>To Username</span>
+                            <input type="text" id="transferToUser" class="amount-input mb-1" placeholder="Enter To Username" required />
+                        </p>
+                        <p class="input-row">
+                            <span>Amount</span>
+                            <input type="number" id="transferAmount" class="amount-input mb-1" placeholder="0" required />
+                        </p>
+                        <p class="button-row">
+                            <button type="submit" class="btn btn-secondary" style="padding: 0.1rem 0.5rem;">
+                                Transfer
+                            </button>
+                        </p>
+                    </form>
+                </div>
+                <div>
+                    <textarea id="transferResult" class="textarea1-output" readonly></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Row 1 -->
+    <div class="outer-row">
+        <div class="view-panel">
+            <div class="inner-row">
+                <div class="view-panel">
+                    <h3>Check Balance</h3>
+                    <form id="staffBalanceForm">
+                        <p class="input-row">
+                            <span>Target Username (blank = yourself) </span>
+                            <input type="text" id="staffBalanceUser" class="amount-input mb-1" placeholder="Enter Username" />
+                        </p>
+                        <p class="button-row">
+                            <button type="submit" class="btn btn-secondary" style="padding: 0.1rem 0.5rem;">
+                                Check
+                            </button>
+                        </p>
+                    </form>
+                </div>
+                <div>
+                    <textarea id="staffBalanceResult" class="textarea1-output" readonly></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
     <script>
-        var staffApiBase = '@Url.Content("~/api/bank/")';
+    var staffApiBase = '@Url.Content("~/api/bank/")';
 
-        function run(endpoint, payload, outputId) {
+        function run(endpoint, payload, outputId, transform) {
             var box = document.getElementById(outputId);
             fetch(staffApiBase + endpoint, {
                 method: "POST",
@@ -43,9 +196,81 @@
                 body: JSON.stringify(payload)
             })
                 .then(function (res) { return res.text(); })
-                .then(function (text) { box.value = text; })
-                .catch(function (err) { box.value = err.message; });
+                .then(function (text) {
+                    var output = (typeof transform === "function") ? transform(text) : text;
+                    if ("value" in box) {
+                        box.value = output;
+                    } else {
+                        box.textContent = output;
+                    }
+                })
+                .catch(function (err) {
+                    if ("value" in box) {
+                        box.value = err.message;
+                    } else {
+                        box.textContent = err.message;
+                    }
+                });
         }
+
+        function formatBalanceResponse(text) {
+            try {
+                var obj = JSON.parse(text);
+                var msg = obj.message;
+                var user = obj.username;
+                var num = obj.balance;
+                return msg + "\n" + user + "\n" + "$" + num.toFixed(2);
+            } catch (e) {
+                return text;
+            }
+        }
+
+        function formatTransferResponse(text) {
+            try {
+                var obj = JSON.parse(text);
+                var msg = obj.message || obj.Message || "";
+
+                var from = obj.from || {};
+                var to = obj.to || {};
+
+                var fromUser = from.username || "";
+                var fromBalance = (typeof from.balance === "number")
+                    ? from.balance.toFixed(2)
+                    : "";
+
+                var toUser = to.username || "";
+                var toBalance = (typeof to.balance === "number")
+                    ? to.balance.toFixed(2)
+                    : "";
+
+                var output = [];
+
+                if (msg) {
+                    output.push(msg);
+                }
+
+                if (fromUser) {
+                    var fromLine = "From: \t" + fromUser + "\n";
+                    fromLine += "Balance - $" + fromBalance + "\n";
+                    output.push(fromLine);
+                }
+
+                if (toUser) {
+                    var toLine = "To: \t\t" + toUser + "\n";
+                    toLine += "Balance - $" + toBalance;
+                    output.push(toLine);
+                }
+
+                if (!output.length) {
+                    return text;
+                }
+
+                return output.join("\n");
+            } catch (e) {
+                return text;
+            }
+        }
+
 
         document.getElementById("transferForm").addEventListener("submit", function (e) {
             e.preventDefault();
@@ -53,14 +278,16 @@
                 fromUsername: document.getElementById("transferFromUser").value,
                 toUsername: document.getElementById("transferToUser").value,
                 amount: Number(document.getElementById("transferAmount").value)
-            }, "transferResult");
+            }, "transferResult", formatTransferResponse);
+
+            document.getElementById("transferAmount").value = null;
         });
 
         document.getElementById("staffBalanceForm").addEventListener("submit", function (e) {
             e.preventDefault();
             run("balance", {
                 targetUsername: document.getElementById("staffBalanceUser").value
-            }, "staffBalanceResult");
+            }, "staffBalanceResult", formatBalanceResponse);
         });
     </script>
 }
