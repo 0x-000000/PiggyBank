@@ -11,18 +11,24 @@
 
 @using (Html.BeginForm("Login", "Account", FormMethod.Post))
 {
+    <h1>PiggyBank Login</h1>
     <input type="hidden" name="returnUrl" value="@returnUrl" />
-    <p>
-        <label>Username</label>
-        <input type="text" name="username" required />
+    <p class="mt-4">
+        <label>Username</label><br />
+        <input type="text" name="username" class="form-control mt-1" required />
     </p>
     <p>
-        <label>Password</label>
-        <input type="password" name="password" required />
+        <label>Password</label><br />
+        <input type="password" name="password" class="form-control mt-1" required />
     </p>
-    <p>
-        <button type="submit">Sign In</button>
+    <p class="mt-3">
+        <button type="submit" class="btn btn-primary">
+            Sign In
+        </button><br />
     </p>
 }
 
-<p>@Html.ActionLink("Register here", "Register", "Account")</p>
+<p class="mt-3">
+    <label>Not Registered? Sign up here!</label><br />
+    @Html.ActionLink("Register here", "Register", "Account")
+</p>
