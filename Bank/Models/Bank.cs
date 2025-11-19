@@ -1,11 +1,9 @@
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Web.Hosting;
 using System.Xml.Linq;
-using Newtonsoft.Json.Linq;
 
 namespace Bank.Models
 {
@@ -67,39 +65,43 @@ namespace Bank.Models
         public static List<BankAccount> LoadAccounts()
         {
             var xmlPath = GetXmlPath();
-
             if (!File.Exists(xmlPath))
             {
-                File.WriteAllText(xmlPath, "<Accounts />");
+                File.WriteAllText(xmlPath, "<Accounts></Accounts>");
                 return new List<BankAccount>();
             }
 
             try
             {
-                var xml = File.ReadAllText(xmlPath);
-                if (string.IsNullOrWhiteSpace(xml))
+                var doc = XDocument.Load(xmlPath);
+                if (doc.Root == null)
                 {
                     return new List<BankAccount>();
                 }
 
-                var jObj = JObject.Parse(JsonConvert.SerializeXNode(XDocument.Parse(xml)));
-                var accountsToken = jObj["Accounts"]?["BankAccount"];
-
-                if (accountsToken == null)
+                var list = new List<BankAccount>();
+                foreach (var node in doc.Root.Elements("BankAccount"))
                 {
-                    return new List<BankAccount>();
+                    var username = (string)node.Element("Username");
+                    var balanceText = (string)node.Element("Balance");
+                    var typeText = (string)node.Element("AccountType");
+
+                    double bal = 0;
+                    double.TryParse(balanceText, out bal);
+
+                    list.Add(new BankAccount
+                    {
+                        Username = username,
+                        Balance = bal,
+                        AccountType = string.IsNullOrWhiteSpace(typeText) ? "member" : typeText
+                    });
                 }
 
-                if (accountsToken is JArray arr)
-                {
-                    return arr.ToObject<List<BankAccount>>() ?? new List<BankAccount>();
-                }
-
-                var single = accountsToken.ToObject<BankAccount>();
-                return single == null ? new List<BankAccount>() : new List<BankAccount> { single };
+                return list;
             }
             catch
             {
+                // return empty list fallback
                 return new List<BankAccount>();
             }
         }
@@ -107,7 +109,23 @@ namespace Bank.Models
         //write accounts
         public static void SaveAccounts(IEnumerable<BankAccount> accounts)
         {
-            File.WriteAllText(GetXmlPath(), JsonConvert.DeserializeXNode(JsonConvert.SerializeObject(new { BankAccount = accounts ?? Enumerable.Empty<BankAccount>() }), "Accounts")?.ToString() ?? "<Accounts />");
+            var doc = new XDocument();
+            var root = new XElement("Accounts");
+            doc.Add(root);
+
+            if (accounts != null)
+            {
+                foreach (var account in accounts)
+                {
+                    root.Add(new XElement("BankAccount",
+                        new XElement("Username", account?.Username),
+                        new XElement("Balance", account?.Balance ?? 0),
+                        new XElement("AccountType", string.IsNullOrWhiteSpace(account?.AccountType) ? "member" : account.AccountType)
+                    ));
+                }
+            }
+
+            doc.Save(GetXmlPath());
         }
 
     }
