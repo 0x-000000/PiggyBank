@@ -193,32 +193,17 @@
             <div class="inner-row">
                 <div class="view-panel">
                     <h3>Role Change</h3>
-                    <form id="promoteForm">
-                        <p class="input-row">
-                            <span>Promote this user to admin</span>
-                            <input type="text" id="promoteUser" class="amount-input mb-1" placeholder="username"
-                                required />
-                        </p>
-                        <p class="button-row">
-                            <button type="submit" class="btn btn-secondary" style="padding: 0.1rem 0.5rem;">
-                                Promote
-                            </button>
-                        </p>
-                    </form>
-                    <form id="demoteForm">
-                        <p class="input-row">
-                            <span>Demote admin to member (blank = yourself)</span>
-                            <input type="text" id="demoteUser" class="amount-input mb-1" placeholder="username" />
-                        </p>
-                        <p class="button-row">
-                            <button type="submit" class="btn btn-secondary" style="padding: 0.1rem 0.5rem;">
-                                Demote
-                            </button>
-                        </p>
-                    </form>
-                </div>
-                <div>
-                    <textarea id="roleChangeResult" class="textarea1-output" readonly></textarea>
+                    <p>Select a user to change roles</p>
+                    <div class="inner-row">
+                        <div class="view-panel">
+                            <h4>Members</h4>
+                            <div id="memberList"></div>
+                        </div>
+                        <div class="view-panel">
+                            <h4>Admins</h4>
+                            <div id="adminList"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -231,7 +216,8 @@
 
         function run(endpoint, payload, outputId, transform) {
             var box = document.getElementById(outputId);
-            fetch(staffApiBase + endpoint, {
+
+            return fetch(staffApiBase + endpoint, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
@@ -247,12 +233,65 @@
                 });
         }
 
+        function send(endpoint, payload) {
+            return fetch(staffApiBase + endpoint, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            }).then(function (res) { return res.text(); });
+        }
+
         function formatBalanceResponse(text) {
             var obj = JSON.parse(text);
             var msg = obj.message;
             var user = obj.username;
             var num = obj.balance;
             return msg + "\n" + user + "\n" + "$" + num.toFixed(2);
+        }
+
+        function promoteUser(name) {
+            send("promote", { targetUsername: name }).then(loadUsers);
+        }
+
+        function demoteUser(name) {
+            send("demote", { targetUsername: name }).then(loadUsers);
+        }
+
+        function renderList(targetId, users, mode) {
+            var box = document.getElementById(targetId);
+            var html = "";
+            for (var i = 0; i < users.length; i++) {
+                var u = users[i];
+                var btn = "";
+                if (mode === "promote") {
+                    btn = "<button type=\"button\" class=\"btn btn-primary btn-sm\" onclick=\"promoteUser('" + u.username + "')\">Promote</button>";
+                } else {
+                    btn = "<button type=\"button\" class=\"btn btn-secondary btn-sm\" onclick=\"demoteUser('" + u.username + "')\">Demote</button>";
+                }
+                html += "<div class=\"input-row\"><span>" + u.username + "</span>" + btn + "</div>";
+            }
+
+            box.innerHTML = html;   // the evil and intimidating xss
+        }
+
+        function loadUsers() {
+            fetch(staffApiBase + "users")
+                .then(function (res) { return res.json(); })
+                .then(function (list) {
+                    var members = [];
+                    var admins = [];
+                    for (var i = 0; i < list.length; i++) {
+                        var u = list[i];
+                        if ((u.accountType || "").toLowerCase() === "admin") {
+                            admins.push(u);
+                        } else {
+                            members.push(u);
+                        }
+                    }
+
+                    renderList("memberList", members, "promote");
+                    renderList("adminList", admins, "demote");
+                });
         }
 
         function formatTransferResponse(text) {
@@ -263,10 +302,10 @@
             var to = obj.to;
 
             var fromUser = from.username;
-            var fromBalance = from.balance.toFixed(2);
+            var fromBalance = (from.balance || 0).toFixed(2);
 
             var toUser = to.username;
-            var toBalance = to.balance.toFixed(2);
+            var toBalance = (to.balance || 0).toFixed(2);
 
             var output = [];
 
@@ -281,17 +320,6 @@
             output.push(toLine);
 
             return output.join("\n");
-        }
-
-        function formatRoleResponse(text) {
-            var obj = JSON.parse(text);
-            if (obj.message) {
-                return obj.message;
-            }
-            if (obj.Message) {
-                return obj.Message;
-            }
-            return text;
         }
 
 
@@ -313,18 +341,6 @@
             }, "staffBalanceResult", formatBalanceResponse);
         });
 
-        document.getElementById("promoteForm").addEventListener("submit", function (e) {
-            e.preventDefault();
-            run("promote", {
-                targetUsername: document.getElementById("promoteUser").value
-            }, "roleChangeResult", formatRoleResponse);
-        });
-
-        document.getElementById("demoteForm").addEventListener("submit", function (e) {
-            e.preventDefault();
-            run("demote", {
-                targetUsername: document.getElementById("demoteUser").value
-            }, "roleChangeResult", formatRoleResponse);
-        });
+        loadUsers();
     </script>
 }

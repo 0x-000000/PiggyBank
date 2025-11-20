@@ -1,4 +1,5 @@
 using Bank.Models;
+using System.Linq;
 using System.Web;
 using System.Web.Http;
 
@@ -210,6 +211,32 @@ namespace Bank.Controllers
                 username = result.Username,
                 accountType = result.AccountType
             });
+        }
+
+        [HttpGet]
+        [Route("users")]
+        public IHttpActionResult Users()
+        {
+            var fail = RequireActor(out var actor);
+            if (fail != null)
+            {
+                return fail;
+            }
+
+            if (!string.Equals(actor.AccountType, "admin", System.StringComparison.OrdinalIgnoreCase))
+            {
+                return Unauthorized();
+            }
+
+            var accounts = BankDatabase.LoadAccounts();
+            var users = accounts.Select(a => new
+            {
+                username = a.Username,
+                accountType = a.AccountType,
+                balance = a.Balance
+            }).ToList();
+
+            return Ok(users);
         }
     }
 }
