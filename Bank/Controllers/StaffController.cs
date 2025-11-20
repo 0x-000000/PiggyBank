@@ -10,21 +10,26 @@ namespace Bank.Controllers
         public ActionResult Index()
         {
             var user = Request.Cookies["user"]?.Value;
-            var role = Request.Cookies["role"]?.Value ?? "member";
-
             if (string.IsNullOrWhiteSpace(user))
             {
                 return RedirectToAction("Login", "Account");
             }
+
+            var account = bank.GetAccount(user);
+            if (account == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var role = string.IsNullOrWhiteSpace(account.AccountType) ? "member" : account.AccountType;
 
             if (!string.Equals(role, "admin"))
             {
                 return RedirectToAction("Index", "Member");
             }
 
-            var account = bank.GetAccount(user);
-            ViewBag.Username = account?.Username ?? user;
-            ViewBag.AccountType = account?.AccountType ?? role;
+            ViewBag.Username = account.Username ?? user;
+            ViewBag.AccountType = role;
             return View();
         }
     }

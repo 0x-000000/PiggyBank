@@ -10,8 +10,6 @@ namespace Bank.Controllers
         public ActionResult Index()
         {
             var user = Request.Cookies["user"]?.Value;
-            var role = Request.Cookies["role"]?.Value ?? "member";
-
             if (string.IsNullOrWhiteSpace(user))
             {
                 return RedirectToAction("Login", "Account");
@@ -19,7 +17,7 @@ namespace Bank.Controllers
 
             var account = bank.GetAccount(user);
             ViewBag.Username = account?.Username ?? user;
-            ViewBag.AccountType = account?.AccountType ?? role;
+            ViewBag.AccountType = account?.AccountType ?? "member";
             return View();
         }
     }

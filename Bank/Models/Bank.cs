@@ -377,6 +377,74 @@ namespace Bank.Models
             return (sender, recipient);
         }
 
+        public BankAccount Promote(BankAccount actor, string targetUsername, out string error)
+        {
+            error = null;
+
+            if (actor == null || !IsAdmin(actor))
+            {
+                error = "Only admins can do that.";
+                return null;
+            }
+
+            if (string.IsNullOrWhiteSpace(targetUsername))
+            {
+                error = "Need a username to promote.";
+                return null;
+            }
+
+            var accounts = BankDatabase.LoadAccounts();
+            var target = FindAccount(accounts, targetUsername);
+
+            if (target == null)
+            {
+                error = "User not found.";
+                return null;
+            }
+
+            target.AccountType = "admin";
+            BankDatabase.SaveAccounts(accounts);
+            return target;
+        }
+
+        public BankAccount Demote(BankAccount actor, string targetUsername, out string error)
+        {
+            error = null;
+
+            if (actor == null || !IsAdmin(actor))
+            {
+                error = "Only admins can do that.";
+                return null;
+            }
+
+            var accounts = BankDatabase.LoadAccounts();
+            var name = string.IsNullOrWhiteSpace(targetUsername) ? actor.Username : targetUsername.Trim();
+            var target = FindAccount(accounts, name);
+
+            if (target == null)
+            {
+                error = "User not found.";
+                return null;
+            }
+
+            if (!IsAdmin(target))
+            {
+                error = "User is not an admin.";
+                return null;
+            }
+
+            var adminCount = accounts.Count(a => IsAdmin(a));
+            if (adminCount <= 1)
+            {
+                error = "Need at least one admin.";
+                return null;
+            }
+
+            target.AccountType = "member";
+            BankDatabase.SaveAccounts(accounts);
+            return target;
+        }
+
         private static BankAccount PickTarget(List<BankAccount> accounts, BankAccount actor, string targetUsername, out string error)
         {
             error = null;

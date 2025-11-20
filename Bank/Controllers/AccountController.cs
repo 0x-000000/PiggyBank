@@ -39,13 +39,7 @@ namespace Bank.Controllers
                 HttpOnly = true // xss proof ggez
             };
 
-            var roleCookie = new HttpCookie("role", account.AccountType)
-            {
-                HttpOnly = true
-            };
-
             Response.Cookies.Add(userCookie);
-            Response.Cookies.Add(roleCookie);
 
             if (!string.IsNullOrWhiteSpace(redirect))
             {
@@ -132,7 +126,6 @@ namespace Bank.Controllers
         public ActionResult Logout()
         {
             ExpireCookie("user");
-            ExpireCookie("role");
 
             return RedirectToAction("Index", "Home");
         }

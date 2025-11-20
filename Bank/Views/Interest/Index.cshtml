@@ -1,10 +1,11 @@
 @{
     ViewBag.Title = "Interest Calculator";
     var userCookie = Request.Cookies["user"];
-    var typeCookie = Request.Cookies["role"];
+    var bank = new Bank.Models.BankSystem();
     bool isLoggedIn = userCookie != null && !string.IsNullOrEmpty(userCookie.Value);
     string username = isLoggedIn ? userCookie.Value : "";
-    string type = typeCookie?.Value ?? "";
+    var account = isLoggedIn ? bank.GetAccount(username) : null;
+    string type = account?.AccountType ?? "";
 }
 
 <style>

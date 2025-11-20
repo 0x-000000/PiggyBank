@@ -163,5 +163,53 @@ namespace Bank.Controllers
                 }
             });
         }
+
+        [HttpPost]
+        [Route("promote")]
+        public IHttpActionResult Promote([FromBody] BalanceRequest request)
+        {
+            var fail = RequireActor(out var actor);
+            if (fail != null)
+            {
+                return fail;
+            }
+
+            var result = bank.Promote(actor, request?.TargetUsername, out var error);
+            if (result == null)
+            {
+                return BadRequest(error ?? "Promote failed.");
+            }
+
+            return Ok(new
+            {
+                message = "Promoted.",
+                username = result.Username,
+                accountType = result.AccountType
+            });
+        }
+
+        [HttpPost]
+        [Route("demote")]
+        public IHttpActionResult Demote([FromBody] BalanceRequest request)
+        {
+            var fail = RequireActor(out var actor);
+            if (fail != null)
+            {
+                return fail;
+            }
+
+            var result = bank.Demote(actor, request?.TargetUsername, out var error);
+            if (result == null)
+            {
+                return BadRequest(error ?? "Demote failed.");
+            }
+
+            return Ok(new
+            {
+                message = "Demoted.",
+                username = result.Username,
+                accountType = result.AccountType
+            });
+        }
     }
 }
