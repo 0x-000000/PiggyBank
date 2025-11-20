@@ -36,7 +36,8 @@ namespace Bank.Controllers
 
             var userCookie = new HttpCookie("user", account.Username)
             {
-                HttpOnly = true // xss proof ggez
+                HttpOnly = true, // xss proof ggez
+                Path = "/"
             };
 
             Response.Cookies.Add(userCookie);
@@ -139,7 +140,8 @@ namespace Bank.Controllers
 
             var cookie = new HttpCookie(name)
             {
-                Expires = DateTime.UtcNow.AddDays(-1)   // classic httponly cookie invalidation
+                Expires = DateTime.UtcNow.AddDays(-1),   // classic httponly cookie invalidation
+                Path = "/"
             };
             Response.Cookies.Add(cookie);
         }
