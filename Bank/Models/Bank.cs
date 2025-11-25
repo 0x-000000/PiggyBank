@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Principal;
 using System.Web.Hosting;
 using System.Xml.Linq;
 
@@ -38,6 +39,12 @@ namespace Bank.Models
     public class BalanceRequest
     {
         public string TargetUsername { get; set; }
+    }
+
+    public class ChangePasswordRequest
+    {
+        public string TargetUsername { get; set; }
+        public string NewPassword { get; set; }
     }
 
     public class BankDatabase
@@ -441,6 +448,46 @@ namespace Bank.Models
             }
 
             target.AccountType = "member";
+            BankDatabase.SaveAccounts(accounts);
+            return target;
+        }
+
+        public BankAccount ChangePassword(BankAccount actor, string username,string newPassword, out string error)
+        {
+            error = null;
+
+            if (actor == null)
+            {
+                error = "Unknown account.";
+                return null;
+            }
+
+            if (string.IsNullOrWhiteSpace(newPassword))
+            {
+                error = "New Password cannot be empty.";
+                return null;
+            }
+
+            var accounts = BankDatabase.LoadAccounts();
+
+            var targetName = string.IsNullOrWhiteSpace(username) ? actor.Username : username.Trim();
+            var target = FindAccount(accounts, targetName);
+
+            if (!IsAdmin(actor) &&
+                !string.Equals(targetName, actor.Username, StringComparison.OrdinalIgnoreCase))
+            {
+                error = "Members can only change their own password.";
+                return null;
+            }
+
+            if (target == null)
+            {
+                error = "User not found.";
+                return null;
+            }
+
+            target.Password = credentials.HashPassword(newPassword);
+
             BankDatabase.SaveAccounts(accounts);
             return target;
         }
