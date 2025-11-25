@@ -1,0 +1,188 @@
+﻿@{
+    // This page handles the Manage Account Page UI and the code logic behind it
+    ViewBag.Title = "Manage";
+    var username = ViewBag.Username as string ?? "unknown";
+    var type = ViewBag.AccountType as string ?? "member";
+}
+
+<style>
+    .status-message {
+        display: inline-block;
+        min-height: 1.2em;
+    }
+</style>
+
+<h1>Manage Account</h1>
+<div class="row mt-4">
+    <div class="col-md-6">
+        <h3>Change Password</h3>
+        <form id="changePasswordForm">
+            <div class="mb-3">
+                <label for="oldPassword" class="form-label">Current Password</label>
+                <div class="input-group">
+                    <input type="password" id="oldPassword" name="oldPassword" class="form-control" 
+                           placeholder="Enter current password" required />
+                    <button type="button" id="toggleOldPassword" class="btn btn-outline-secondary">
+                        Show
+                    </button>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="newPassword" class="form-label">New Password</label>
+                <div class="input-group">
+                    <input type="password" id="newPassword" name="newPassword" class="form-control"
+                           placeholder="Enter new password" required />
+                    <button type="button" id="toggleNewPassword" class="btn btn-outline-secondary">
+                        Show
+                    </button>
+                    <button type="button" id="suggestPassword" class="btn btn-outline-secondary">
+                        Suggest Password
+                    </button>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" class="form-control"
+                       placeholder="Re-enter new password" required />
+            </div>
+
+            <div class="mb-2">
+                <button type="submit" class="btn btn-primary btn-sm">
+                    Change Password
+                </button>
+            </div>
+
+            <div>
+                <span id="changePasswordResult" class="status-message"></span>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    <script>
+        (function () {
+            var apiBase = '@Url.Content("~/api/bank/")';
+            var suggestButton = document.getElementById("suggestPassword");
+            var oldPasswordInput = document.getElementById("oldPassword");
+            var toggleOldButton = document.getElementById("toggleOldPassword");
+            var newPasswordInput = document.getElementById("newPassword");
+            var confirmInput = document.getElementById("confirmPassword");
+            var toggleNewButton = document.getElementById("toggleNewPassword");
+            var resultSpan = document.getElementById("changePasswordResult");
+            var form = document.getElementById("changePasswordForm");
+
+            // This function handles what happens when the Suggest Password button is clicked
+            if (suggestButton && newPasswordInput && confirmInput) {
+                suggestButton.addEventListener("click", function () {
+                    suggestButton.disabled = true;
+                    fetch('@Url.Action("SuggestPassword", "Account")', {
+                        method: "GET",
+                        headers: { "X-Requested-With": "XMLHttpRequest" }
+                    })
+                        .then(function (res) {
+                            if (!res.ok) {
+                                throw new Error("Password service error");
+                            }
+                            return res.json();
+                        })
+                        .then(function (data) {
+                            if (data && data.password) {
+                                newPasswordInput.value = data.password;
+                                confirmInput.value = data.password;
+                            } else if (data && data.error) {
+                                alert(data.error);
+                            }
+                        })
+                        .catch(function (err) {
+                            alert(err.message || "Unable to fetch password");
+                        })
+                        .then(function () {
+                            suggestButton.disabled = false;
+                        });
+                });
+            }
+
+            // This function handles what happens when the Show/Hide button is clicked
+            // in the new password section
+            if (toggleNewButton && newPasswordInput && confirmInput) {
+                toggleNewButton.addEventListener("click", function () {
+                    var showing = newPasswordInput.type === "text";
+                    newPasswordInput.type = showing ? "password" : "text";
+                    confirmInput.type     = showing ? "password" : "text";
+                    toggleNewButton.textContent = showing ? "Show" : "Hide";
+                });
+            }
+
+            // This function handles what happens when the Show/Hide button is clicked
+            // in the old password section
+            if (toggleOldButton && oldPasswordInput) {
+                toggleOldButton.addEventListener("click", function () {
+                    var showing = oldPasswordInput.type === "text";
+                    oldPasswordInput.type = showing ? "password" : "text";
+                    toggleOldButton.textContent = showing ? "Show" : "Hide";
+                });
+            }
+
+            // This function handles what happens when the Change Password button is clicked
+            if (form && oldPasswordInput && newPasswordInput && confirmInput && resultSpan) {
+                form.addEventListener("submit", function (e) {
+                    e.preventDefault();
+
+                    resultSpan.classList.remove("text-success", "text-danger");
+                    resultSpan.textContent = "Updating...";
+
+                    // This section helps format the input to the ChangePasswordRequest
+                    var payload = {
+                        oldPassword: oldPasswordInput.value,
+                        newPassword: newPasswordInput.value,
+                        confirmPassword: confirmInput.value
+                    };
+
+                    // This section handles sending and received the ChangePasswordRequest
+                    fetch(apiBase + "changePassword", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(payload) //turns the payload into JSON format
+                    })
+                        .then(function (res) {
+                            if (!res.ok) {
+                                return res.text().then(function (text) {
+                                    var msg = text;
+                                    try {
+                                        var obj = JSON.parse(text);
+                                        msg = obj.message || obj.Message || msg;
+                                    } catch (e) {
+                                    }
+                                    throw new Error(msg || "Unable to change password.");
+                                });
+                            }
+                            return res.json();
+                        })
+                        .then(function (data) {
+                            var msg = (data && (data.message || data.Message)) || "Password changed.";
+
+                            resultSpan.classList.add("text-success");
+                            resultSpan.textContent = msg;
+
+                            // Reset the values in the textboxes
+                            oldPasswordInput.value = "";
+                            newPasswordInput.value = "";
+                            confirmInput.value  = "";
+                        })
+                        .catch(function (err) {
+                            resultSpan.classList.remove("text-success");
+                            resultSpan.classList.add("text-danger");
+                            resultSpan.textContent = err.message || "Unable to change password.";
+                        });
+                });
+            }
+        })();
+    </script>
+}

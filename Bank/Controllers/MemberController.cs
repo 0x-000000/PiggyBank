@@ -6,7 +6,8 @@ namespace Bank.Controllers
     public class MemberController : Controller
     {
         private readonly BankSystem bank = new BankSystem();
-
+        
+        // This code handles the logic for the Members page
         public ActionResult Index()
         {
             var user = Request.Cookies["user"]?.Value;

@@ -1,9 +1,11 @@
 @{
+    // This page handles the Member View page UI and the code logic behind it
     ViewBag.Title = "Member";
     var username = ViewBag.Username as string ?? "unknown";
     var type = ViewBag.AccountType as string ?? "member";
 }
 
+<!-- This section helps styling the HTML page and makes it look prettier -->
 <style>
     .master-view {
         margin-top: 20px;
@@ -36,15 +38,15 @@
         min-width: 220px;
     }
 
-    .view-panel p {
-        margin: 4px 0;
-    }
+        .view-panel p {
+            margin: 4px 0;
+        }
 
-    .view-panel h3 {
-        margin-top: 0;
-        margin-bottom: 10px;
-        font-size: 1.3rem;
-    }
+        .view-panel h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
 
     .input-row {
         display: flex;
@@ -54,24 +56,24 @@
         margin: 4px 0;
     }
 
-    .input-row>* {
-        margin: 0;
-        line-height: 1.2;
-    }
+        .input-row > * {
+            margin: 0;
+            line-height: 1.2;
+        }
 
-    .input-row input[type="number"] {
-        max-width: 120px;
-        text-align: right;
-    }
+        .input-row input[type="number"] {
+            max-width: 120px;
+            text-align: right;
+        }
 
-    .input-row input[type="text"] {
-        max-width: 160px;
-        text-align: right;
-    }
+        .input-row input[type="text"] {
+            max-width: 160px;
+            text-align: right;
+        }
 
-    .input-row span {
-        margin-bottom: 2px;
-    }
+        .input-row span {
+            margin-bottom: 2px;
+        }
 
     .textarea1-output {
         width: 200px;
@@ -113,23 +115,36 @@
         padding: 2px 6px;
     }
 
-    .amount-input::-webkit-outer-spin-button,
-    .amount-input::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-    }
+        .amount-input::-webkit-outer-spin-button,
+        .amount-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
 
-    .amount-input[type=number] {
-        -moz-appearance: textfield;
-    }
+        .amount-input[type=number] {
+            -moz-appearance: textfield;
+        }
 </style>
 
 <div class="master-view">
     <p class="greeting">
-        Hello, @username (@type)
+        <h5>Hello, @username (@type) </h5>
+        This is the member page for our application, which can be accessed by both Staff <br />
+        accounts and Members accounts. In order to access this page, you must first be logged <br />
+        in. This page provides four basic functionalities. It includes a balance checking <br />
+        service, a deposit service, a withdrawal service, and a transfer service. These services <br />
+        are able to modify the data stored in the XML files on the server through API calls. <br />
+        Account Balance is used to refresh and update the balance of the user in case if another <br />
+        account transfers money to the current account. Deposit is able to simulate basic <br />
+        deposits by adding the specified amount to the user's balance. Withdraw is able to <br />
+        simulate basic withdrawals by subtracting the specified amount from the user's balance. <br />
+        Transfer is able to move money between accounts by subtracting the specified amount from <br />
+        the users account and adding it to the specified user's account. <br />
+        The Interest and Tax methods can be accessed through the top navigation bar. <br />
     </p>
 
     <!-- Row 1 -->
+    <!-- This row contains Account Balance -->
     <div class="outer-row mb-4">
         <div class="view-panel">
             <h3>Account Balance</h3>
@@ -149,6 +164,7 @@
     </div>
 
     <!-- Row 2 -->
+    <!-- This row contains the Deposit and Withdraw panels -->
     <div class="outer-row">
         <!-- Deposit Panel -->
         <div class="view-panel">
@@ -159,7 +175,7 @@
                         <p class="input-row mb-1">
                             <span>Amount</span>
                             <input type="number" id="depositAmount" class="amount-input mb-1" placeholder="0"
-                                required />
+                                   required />
                         </p>
                         <p class="button-row">
                             <button type="submit" class="btn btn-secondary" style="padding: 0.1rem 0.5rem;">
@@ -199,6 +215,7 @@
     </div>
 
     <!-- Row 3 -->
+    <!-- This row contains the Transfer Funds panel -->
     <div class="outer-row">
         <!-- Transfer Panel -->
         <div class="view-panel">
@@ -209,12 +226,12 @@
                         <p class="input-row">
                             <span>Send to Username</span>
                             <input type="text" id="transferToUser" class="amount-input mb-1"
-                                placeholder="Enter Username" required />
+                                   placeholder="Enter Username" required />
                         </p>
                         <p class="input-row mb-1">
                             <span>Amount</span>
                             <input type="number" id="transferAmount" class="amount-input mb-1" placeholder="0"
-                                required />
+                                   required />
                         </p>
                         <p class="button-row">
                             <button type="submit" class="btn btn-secondary" style="padding: 0.1rem 0.5rem;">
@@ -235,6 +252,7 @@
     <script>
         var apiBase = '@Url.Content("~/api/bank/")';
 
+        // This function helps send requests
         function send(endpoint, payload, outputId, transform) {
             var box = document.getElementById(outputId);
             fetch(apiBase + endpoint, {
@@ -260,6 +278,7 @@
                 });
         }
 
+        // This function helps format the Balance Responses received
         function formatBalanceResponse(text) {
             try {
                 var obj = JSON.parse(text);
@@ -270,6 +289,8 @@
             }
         }
 
+        // This function helps format the Balance update part of the Deposit, Withdraw, and 
+        // transfer functions
         function formatDefaultResponse(text) {
             send("balance",
                 { targetUsername: "" },
@@ -289,6 +310,7 @@
             }
         }
 
+        // This function handles what happens when the Deposit button is clicked
         document.getElementById("depositForm").addEventListener("submit", function (e) {
             e.preventDefault();
             send("deposit", {
@@ -299,6 +321,7 @@
             document.getElementById("depositAmount").value = null;
         });
 
+        // This function handles what happens when the Withdraw button is clicked
         document.getElementById("spendForm").addEventListener("submit", function (e) {
             e.preventDefault();
             send("spend", {
@@ -309,6 +332,7 @@
             document.getElementById("spendAmount").value = null;
         });
 
+        // This function handles what happens when the Refresh Balance button is clicked
         document.getElementById("balanceForm").addEventListener("submit", function (e) {
             e.preventDefault();
             send(
@@ -319,6 +343,7 @@
             );
         });
 
+        // This function handles what happens when the Send button is clicked
         document.getElementById("transferForm").addEventListener("submit", function (e) {
             e.preventDefault();
             send("transfer", {
@@ -330,6 +355,8 @@
             document.getElementById("transferAmount").value = null;
         });
 
+        // This function helps automatically update the Account Balance once the page is
+        // first initialized. 
         send("balance",
             { targetUsername: "" },
             "balanceResult",

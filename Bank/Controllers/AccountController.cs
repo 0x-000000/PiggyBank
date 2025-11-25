@@ -57,6 +57,18 @@ namespace Bank.Controllers
             return View();
         }
 
+        [HttpGet]
+        public ActionResult Manage()
+        {
+            var username = Request.Cookies["user"]?.Value;
+            ViewBag.Username = username ?? "";
+
+            var account = bank.GetAccount(username);
+            ViewBag.AccountType = account?.AccountType ?? "";
+
+            return View();
+        }
+
         [HttpPost]
         public ActionResult Register(string username, string password, string confirmPassword, string captchaText, string captchaAnswer)
         {

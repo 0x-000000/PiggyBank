@@ -1,79 +1,85 @@
-﻿<!DOCTYPE html>
+﻿<!-- This page handles the UI and code logic of the Navigation Bar -->
+<!DOCTYPE html>
 <html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width" />
+        <title>@ViewBag.Title - Piggy Bank</title>
+        @Styles.Render("~/Content/css")
+        @Scripts.Render("~/bundles/modernizr")
+    </head>
 
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
-    <title>@ViewBag.Title - Piggy Bank</title>
-    @Styles.Render("~/Content/css")
-    @Scripts.Render("~/bundles/modernizr")
-</head>
-
-<body>
-
-    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark py-1">
-        <div class="container">
-            @Html.ActionLink("Piggy Bank", "Index", "Home", new { area = "" }, new { @class = "navbar-brand py-0" })
-            @{
-                var userCookie = Request.Cookies["user"];
-                var bank = new Bank.Models.BankSystem();
-                bool isLoggedIn = userCookie != null && !string.IsNullOrEmpty(userCookie.Value);
-                string username = isLoggedIn ? userCookie.Value : "";
-                var account = isLoggedIn ? bank.GetAccount(username) : null;
-                string type = account?.AccountType ?? "";
-            }
-            <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
-                title="Toggle navigation" aria-controls="navbarSupportedContent" aria-expanded="false"
-                aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between">
-                <ul class="navbar-nav flex-grow-1">
-                    <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link py-0" })
-                    </li>
-                    <li>@Html.ActionLink("Member", "Index", "Member", new { area = "" }, new { @class = "nav-link py-0" })</li>
-                    <li>@Html.ActionLink("Staff", "Index", "Staff", new { area = "" }, new { @class = "nav-link py-0" })
-                    </li>
-                    <li>@Html.ActionLink("Interest", "Index", "Interest", new { area = "" }, new { @class = "nav-link                        py-0" })</li>
-                    <li>@Html.ActionLink("Tax", "Index", "Tax", new { area = "" }, new { @class = "nav-link py-0" })
-                    </li>
-                    @if (!isLoggedIn)
-                    {
-                        <li>@Html.ActionLink("Register", "Register", "Account", new { area = "" }, new { @class = "nav-link    py-0" })</li>
-                    }
-                </ul>
-
-                @if (isLoggedIn)
-                {
-                    <div class="d-flex align-items-center ms-auto">
-                        <span class="navbar-text text-white me-3 py-0">
-                            @username (@type)
-                        </span>
-
-                        @using (Html.BeginForm("Logout", "Account", FormMethod.Post, new { @class = "d-inline" }))
-                        {
-                            <button type="submit"
-                                class="btn btn-outline-light btn-sm d-flex align-items-center justify-content-center"
-                                style="padding-top: 0.1rem; padding-bottom: 0.125rem;">
-                                Log Out
-                            </button>
-                        }
-                    </div>
+    <body>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark py-1">
+            <div class="container">
+                @Html.ActionLink("Piggy Bank", "Index", "Home", new { area = "" }, new { @class = "navbar-brand py-0" })
+                @{
+                    var userCookie = Request.Cookies["user"];
+                    var bank = new Bank.Models.BankSystem();
+                    bool isLoggedIn = userCookie != null && !string.IsNullOrEmpty(userCookie.Value);
+                    string username = isLoggedIn ? userCookie.Value : "";
+                    var account = isLoggedIn ? bank.GetAccount(username) : null;
+                    string type = account?.AccountType ?? "";
                 }
+                <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
+                        title="Toggle navigation" aria-controls="navbarSupportedContent" aria-expanded="false"
+                        aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li>
+                            @Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link py-0" })
+                        </li>
+                        <li>@Html.ActionLink("Member", "Index", "Member", new { area = "" }, new { @class = "nav-link py-0" })</li>
+                        <li>
+                            @Html.ActionLink("Staff", "Index", "Staff", new { area = "" }, new { @class = "nav-link py-0" })
+                        </li>
+                        <li>@Html.ActionLink("Interest", "Index", "Interest", new { area = "" }, new { @class = "nav-link py-0" })</li>
+                        <li>
+                            @Html.ActionLink("Tax", "Index", "Tax", new { area = "" }, new { @class = "nav-link py-0" })
+                        </li>
+                        <!-- Changes the last element depending of if a user is logged in currently or not -->
+                        @if (!isLoggedIn)
+                        {
+                            <li>@Html.ActionLink("Register", "Register", "Account", new { area = "" }, new { @class = "nav-link py-0" })</li>
+                        }
+                        else
+                        {
+                            <li>@Html.ActionLink("Account", "Manage", "Account", new { area = "" }, new { @class = "nav-link py-0" })</li>
+                        }
+                    </ul>
+
+                    @if (isLoggedIn)
+                    {
+                        <div class="d-flex align-items-center ms-auto">
+                            <span class="navbar-text text-white me-3 py-0">
+                                @username (@type)
+                            </span>
+
+                            @using (Html.BeginForm("Logout", "Account", FormMethod.Post, new { @class = "d-inline" }))
+                            {
+                                <button type="submit"
+                                        class="btn btn-outline-light btn-sm d-flex align-items-center justify-content-center"
+                                        style="padding-top: 0.1rem; padding-bottom: 0.125rem;">
+                                    Log Out
+                                </button>
+                            }
+                        </div>
+                    }
+                </div>
             </div>
+        </nav>
+        <div class="container body-content">
+            @RenderBody()
+            <hr />
+            <footer>
+                <p>&copy; @DateTime.Now.Year - Piggy Bank Inc</p>
+            </footer>
         </div>
-    </nav>
-    <div class="container body-content">
-        @RenderBody()
-        <hr />
-        <footer>
-            <p>&copy; @DateTime.Now.Year - Piggy Bank Inc</p>
-        </footer>
-    </div>
 
-    @Scripts.Render("~/bundles/jquery")
-    @Scripts.Render("~/bundles/bootstrap")
-    @RenderSection("scripts", required: false)
-</body>
-
+        @Scripts.Render("~/bundles/jquery")
+        @Scripts.Render("~/bundles/bootstrap")
+        @RenderSection("scripts", required: false)
+    </body>
 </html>

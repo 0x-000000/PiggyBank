@@ -1,4 +1,5 @@
 @{
+    // This page handles the Interest Page UI and the code logic behind it
     ViewBag.Title = "Interest Calculator";
     var userCookie = Request.Cookies["user"];
     var bank = new Bank.Models.BankSystem();
@@ -111,6 +112,7 @@
                 return;
             }
 
+            // This function handles what happens when the Calculate button is pressed
             form.addEventListener("submit", function (e) {
                 e.preventDefault();
 
@@ -128,6 +130,7 @@
 
                 output.textContent = "Calling service...";
 
+                // Receives the response and formats it
                 fetch(endpoint, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },

@@ -1,11 +1,10 @@
 @{
+    // This page handles the Register Page UI and the code logic behind it
     ViewBag.Title = "Register";
     var username = ViewBag.Username as string ?? string.Empty;
     var captchaUrl = ViewBag.CaptchaUrl as string ?? string.Empty;
     var captchaCode = ViewBag.CaptchaCode as string ?? string.Empty;
 }
-
-
 
 @using (Html.BeginForm("Register", "Account", FormMethod.Post))
 {
@@ -64,6 +63,7 @@
 @section Scripts {
     <script>
         (function () {
+            // This section handles refreshing the Captcha
             var refreshButton = document.getElementById("refreshCaptcha");
             if (refreshButton) {
                 refreshButton.addEventListener("click", function () {
@@ -88,6 +88,7 @@
             var confirmInput = document.getElementById("confirmPassword");
             var toggleButton = document.getElementById("togglePassword");
 
+            // This section handles what happens when the Suggest Password button is clicked
             if (suggestButton && passwordInput && confirmInput) {
                 suggestButton.addEventListener("click", function () {
                     suggestButton.disabled = true;
@@ -118,6 +119,7 @@
                 });
             }
 
+            // This section handles what happens when the Show/Hide button is pressed
             if (toggleButton && passwordInput && confirmInput) {
                 toggleButton.addEventListener("click", function () {
                     var showing = passwordInput.type === "text";

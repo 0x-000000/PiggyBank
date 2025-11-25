@@ -213,6 +213,30 @@ namespace Bank.Controllers
             });
         }
 
+        [HttpPost]
+        [Route("changepassword")]
+        public IHttpActionResult ChangePassword([FromBody] ChangePasswordRequest request)
+        {
+            var fail = RequireActor(out var actor);
+            if (fail != null)
+            {
+                return fail;
+            }
+
+            var result = bank.ChangePassword(actor, request.TargetUsername, request.OldPassword, request.NewPassword, out var error);
+            if (result == null)
+            {
+                return BadRequest(error ?? "Password Change failed.");
+            }
+
+            return Ok(new
+            {
+                message = "Changed Password.",
+                username = result.Username,
+                accountType = result.AccountType
+            });
+        }
+
         [HttpGet]
         [Route("users")]
         public IHttpActionResult Users()

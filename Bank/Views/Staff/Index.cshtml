@@ -1,9 +1,11 @@
 @{
+    // This page handles the UI of the Staff page and the code logic behind it
     ViewBag.Title = "Staff";
     var username = ViewBag.Username as string ?? "unknown";
     var type = ViewBag.AccountType as string ?? "member";
 }
 
+<!-- This section helps styling the HTML page and makes it look prettier -->
 <style>
     .master-view {
         margin-top: 20px;
@@ -39,15 +41,15 @@
         max-width: 735px;
     }
 
-    .view-panel p {
-        margin: 4px 0;
-    }
+        .view-panel p {
+            margin: 4px 0;
+        }
 
-    .view-panel h3 {
-        margin-top: 0;
-        margin-bottom: 10px;
-        font-size: 1.8rem;
-    }
+        .view-panel h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+        }
 
     .input-row {
         display: flex;
@@ -57,24 +59,24 @@
         margin: 4px 0;
     }
 
-    .input-row>* {
-        margin: 0;
-        line-height: 1.2;
-    }
+        .input-row > * {
+            margin: 0;
+            line-height: 1.2;
+        }
 
-    .input-row input[type="number"] {
-        max-width: 120px;
-        text-align: right;
-    }
+        .input-row input[type="number"] {
+            max-width: 120px;
+            text-align: right;
+        }
 
-    .input-row input[type="text"] {
-        max-width: 180px;
-        text-align: right;
-    }
+        .input-row input[type="text"] {
+            max-width: 180px;
+            text-align: right;
+        }
 
-    .input-row span {
-        margin-bottom: 2px;
-    }
+        .input-row span {
+            margin-bottom: 2px;
+        }
 
     .textarea1-output {
         align-items: stretch;
@@ -109,23 +111,29 @@
         padding: 2px 6px;
     }
 
-    .amount-input::-webkit-outer-spin-button,
-    .amount-input::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-    }
+        .amount-input::-webkit-outer-spin-button,
+        .amount-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
 
-    .amount-input[type=number] {
-        -moz-appearance: textfield;
-    }
+        .amount-input[type=number] {
+            -moz-appearance: textfield;
+        }
 </style>
 
 <div class="master-view">
     <p class="greeting">
-        Hello, @username (@type)
+        <h5>Hello, @username (@type)</h5>
+        This is the Staff view for our application. It is only accessible if the currently <br />
+        logged in account is a Staff type account. On this page, you can adjust the <br />
+        privilege level of accounts by demoting and promoting them. Additionally, on this <br />
+        page, you can manually transfer funds between accounts and check the balance of <br />
+        any account. <br />
     </p>
 
     <!-- Row 1 -->
+    <!-- Contains Fund Transfering Method -->
     <div class="outer-row">
         <div class="view-panel">
             <div class="inner-row">
@@ -135,17 +143,17 @@
                         <p class="input-row">
                             <span>From Username (blank = yourself)</span>
                             <input type="text" id="transferFromUser" class="amount-input mb-1"
-                                placeholder="Enter From Username" />
+                                   placeholder="Enter From Username" />
                         </p>
                         <p class="input-row">
                             <span>To Username</span>
                             <input type="text" id="transferToUser" class="amount-input mb-1"
-                                placeholder="Enter To Username" required />
+                                   placeholder="Enter To Username" required />
                         </p>
                         <p class="input-row">
                             <span>Amount</span>
                             <input type="number" id="transferAmount" class="amount-input mb-1" placeholder="0"
-                                required />
+                                   required />
                         </p>
                         <p class="button-row">
                             <button type="submit" class="btn btn-secondary" style="padding: 0.1rem 0.5rem;">
@@ -162,6 +170,7 @@
     </div>
 
     <!-- Row 2 -->
+    <!-- Contains Balance Checking Method -->
     <div class="outer-row">
         <div class="view-panel">
             <div class="inner-row">
@@ -171,7 +180,7 @@
                         <p class="input-row">
                             <span>Target Username (blank = yourself) </span>
                             <input type="text" id="staffBalanceUser" class="amount-input mb-1"
-                                placeholder="Enter Username" />
+                                   placeholder="Enter Username" />
                         </p>
                         <p class="button-row">
                             <button type="submit" class="btn btn-secondary" style="padding: 0.1rem 0.5rem;">
@@ -188,6 +197,7 @@
     </div>
 
     <!-- Row 3 -->
+    <!-- Contains Role Changing Method -->
     <div class="outer-row">
         <div class="view-panel">
             <div class="inner-row">
@@ -214,6 +224,7 @@
     <script>
         var staffApiBase = '@Url.Content("~/api/bank/")';
 
+        // This function is used to handle the message received from API requests
         function run(endpoint, payload, outputId, transform) {
             var box = document.getElementById(outputId);
 
@@ -233,6 +244,7 @@
                 });
         }
 
+        // This function helps send requests
         function send(endpoint, payload) {
             return fetch(staffApiBase + endpoint, {
                 method: "POST",
@@ -241,6 +253,7 @@
             }).then(function (res) { return res.text(); });
         }
 
+        // This function handles the response received from doing a Balance request
         function formatBalanceResponse(text) {
             var obj = JSON.parse(text);
             var msg = obj.message;
@@ -249,14 +262,17 @@
             return msg + "\n" + user + "\n" + "$" + num.toFixed(2);
         }
 
+        // This function handles promoting a user
         function promoteUser(name) {
             send("promote", { targetUsername: name }).then(loadUsers);
         }
 
+        // This function handles demoting a user
         function demoteUser(name) {
             send("demote", { targetUsername: name }).then(loadUsers);
         }
 
+        // This function displays the accounts in the Role Change panel
         function renderList(targetId, users, mode) {
             var box = document.getElementById(targetId);
             var html = "";
@@ -274,6 +290,7 @@
             box.innerHTML = html;   // the evil and intimidating xss
         }
 
+        // This function helps load the list of users to be displayed in the Role panel
         function loadUsers() {
             fetch(staffApiBase + "users")
                 .then(function (res) { return res.json(); })
@@ -294,6 +311,7 @@
                 });
         }
 
+        // This function helps manage the response received from doing a Transfer
         function formatTransferResponse(text) {
             var obj = JSON.parse(text);
             var msg = obj.message;
@@ -322,7 +340,7 @@
             return output.join("\n");
         }
 
-
+        // This function handles what happens when the Transfer button is clicked
         document.getElementById("transferForm").addEventListener("submit", function (e) {
             e.preventDefault();
             run("transfer", {
@@ -334,6 +352,7 @@
             document.getElementById("transferAmount").value = null;
         });
 
+        // This function handles what happens when the Check Balance button is clicked
         document.getElementById("staffBalanceForm").addEventListener("submit", function (e) {
             e.preventDefault();
             run("balance", {
