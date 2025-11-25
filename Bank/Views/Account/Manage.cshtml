@@ -5,68 +5,62 @@
     var type = ViewBag.AccountType as string ?? "member";
 }
 
-<h2>Manage Account</h2>
+<style>
+    .status-message {
+        display: inline-block;
+        min-height: 1.2em;
+    }
+</style>
 
-<div class="row mt-3">
+<h1>Manage Account</h1>
+<div class="row mt-4">
     <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                Change Password
+        <h3>Change Password</h3>
+        <form id="changePasswordForm">
+            <div class="mb-3">
+                <label for="oldPassword" class="form-label">Current Password</label>
+                <div class="input-group">
+                    <input type="password" id="oldPassword" name="oldPassword" class="form-control" 
+                           placeholder="Enter current password" required />
+                    <button type="button" id="toggleOldPassword" class="btn btn-outline-secondary">
+                        Show
+                    </button>
+                </div>
             </div>
-            <div class="card-body">
-                <form id="changePasswordForm">
-                    <div class="mb-3">
-                        <label for="oldPassword" class="form-label">Current Password</label>
-                        <input type="password"
-                               id="oldPassword"
-                               name="oldPassword"
-                               class="form-control"
-                               placeholder="Enter current password"
-                               required />
-                    </div>
 
-                    <div class="mb-3">
-                        <label for="newPassword" class="form-label">New Password</label>
-                        <div class="input-group">
-                            <input type="password"
-                                   id="newPassword"
-                                   name="newPassword"
-                                   class="form-control"
-                                   placeholder="Enter new password"
-                                   required />
-                            <button type="button" id="toggleNewPassword" class="btn btn-outline-secondary">
-                                Show
-                            </button>
-                            <button type="button" id="suggestPassword" class="btn btn-outline-secondary">
-                                Suggest
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="confirmPassword" class="form-label">Confirm New Password</label>
-                        <input type="password"
-                               id="confirmPassword"
-                               name="confirmPassword"
-                               class="form-control"
-                               placeholder="Re-enter new password"
-                               required />
-                    </div>
-
-                    <div class="mb-2">
-                        <button type="submit" class="btn btn-primary btn-sm">
-                            Change Password
-                        </button>
-                    </div>
-
-                    <div>
-                        <span id="changePasswordResult" class="text-danger"></span>
-                    </div>
-                </form>
+            <div class="mb-3">
+                <label for="newPassword" class="form-label">New Password</label>
+                <div class="input-group">
+                    <input type="password" id="newPassword" name="newPassword" class="form-control"
+                           placeholder="Enter new password" required />
+                    <button type="button" id="toggleNewPassword" class="btn btn-outline-secondary">
+                        Show
+                    </button>
+                    <button type="button" id="suggestPassword" class="btn btn-outline-secondary">
+                        Suggest Password
+                    </button>
+                </div>
             </div>
-        </div>
+
+            <div class="mb-3">
+                <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" class="form-control"
+                       placeholder="Re-enter new password" required />
+            </div>
+
+            <div class="mb-2">
+                <button type="submit" class="btn btn-primary btn-sm">
+                    Change Password
+                </button>
+            </div>
+
+            <div>
+                <span id="changePasswordResult" class="status-message"></span>
+            </div>
+        </form>
     </div>
 </div>
+
 
 
 @section Scripts {
@@ -75,6 +69,7 @@
             var apiBase = '@Url.Content("~/api/bank/")';
             var suggestButton = document.getElementById("suggestPassword");
             var oldPasswordInput = document.getElementById("oldPassword");
+            var toggleOldButton = document.getElementById("toggleOldPassword");
             var newPasswordInput = document.getElementById("newPassword");
             var confirmInput = document.getElementById("confirmPassword");
             var toggleNewButton = document.getElementById("toggleNewPassword");
@@ -120,9 +115,38 @@
                 });
             }
 
+            if (toggleOldButton && oldPasswordInput) {
+                toggleOldButton.addEventListener("click", function () {
+                    var showing = oldPasswordInput.type === "text";
+                    oldPasswordInput.type = showing ? "password" : "text";
+                    toggleOldButton.textContent = showing ? "Show" : "Hide";
+                });
+            }
+
             if (form && oldPasswordInput && newPasswordInput && confirmInput && resultSpan) {
                 form.addEventListener("submit", function (e) {
                     e.preventDefault();
+
+                    if (!oldPasswordInput.value) {
+                        resultSpan.classList.remove("text-success");
+                        resultSpan.classList.add("text-danger");
+                        resultSpan.textContent = "Please enter your current password.";
+                        return;
+                    }
+
+                    if (!newPasswordInput.value || !confirmInput.value) {
+                        resultSpan.classList.remove("text-success");
+                        resultSpan.classList.add("text-danger");
+                        resultSpan.textContent = "Please fill all fields.";
+                        return;
+                    }
+
+                    if (newPasswordInput.value !== confirmInput.value) {
+                        resultSpan.classList.remove("text-success");
+                        resultSpan.classList.add("text-danger");
+                        resultSpan.textContent = "New password and confirmation do not match.";
+                        return;
+                    }
 
                     resultSpan.classList.remove("text-success", "text-danger");
                     resultSpan.textContent = "Updating...";

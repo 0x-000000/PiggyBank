@@ -223,7 +223,7 @@ namespace Bank.Controllers
                 return fail;
             }
 
-            var result = bank.ChangePassword(actor, request.TargetUsername, request.NewPassword, out var error);
+            var result = bank.ChangePassword(actor, request.TargetUsername, request.OldPassword, request.NewPassword, out var error);
             if (result == null)
             {
                 return BadRequest(error ?? "Password Change failed.");
@@ -231,7 +231,7 @@ namespace Bank.Controllers
 
             return Ok(new
             {
-                message = "ChangedPassword.",
+                message = "Changed Password.",
                 username = result.Username,
                 accountType = result.AccountType
             });

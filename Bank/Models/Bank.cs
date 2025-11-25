@@ -44,6 +44,7 @@ namespace Bank.Models
     public class ChangePasswordRequest
     {
         public string TargetUsername { get; set; }
+        public string OldPassword { get; set; }
         public string NewPassword { get; set; }
     }
 
@@ -452,7 +453,7 @@ namespace Bank.Models
             return target;
         }
 
-        public BankAccount ChangePassword(BankAccount actor, string username,string newPassword, out string error)
+        public BankAccount ChangePassword(BankAccount actor, string username,string oldPassword, string newPassword, out string error)
         {
             error = null;
 
@@ -462,9 +463,21 @@ namespace Bank.Models
                 return null;
             }
 
+            if (string.IsNullOrWhiteSpace(oldPassword))
+            {
+                error = "Please enter your current password.";
+                return null;
+            }
+
             if (string.IsNullOrWhiteSpace(newPassword))
             {
                 error = "New Password cannot be empty.";
+                return null;
+            }
+
+            if (string.Equals(newPassword, oldPassword, StringComparison.Ordinal))
+            {
+                error = "New password must be different from the current password.";
                 return null;
             }
 
@@ -473,8 +486,7 @@ namespace Bank.Models
             var targetName = string.IsNullOrWhiteSpace(username) ? actor.Username : username.Trim();
             var target = FindAccount(accounts, targetName);
 
-            if (!IsAdmin(actor) &&
-                !string.Equals(targetName, actor.Username, StringComparison.OrdinalIgnoreCase))
+            if (!IsAdmin(actor) && !string.Equals(targetName, actor.Username, StringComparison.OrdinalIgnoreCase))
             {
                 error = "Members can only change their own password.";
                 return null;
@@ -483,6 +495,12 @@ namespace Bank.Models
             if (target == null)
             {
                 error = "User not found.";
+                return null;
+            }
+
+            if (!credentials.VerifyPassword(oldPassword, target.Password))
+            {
+                error = "Current password is incorrect.";
                 return null;
             }
 
