@@ -1,4 +1,5 @@
 @{
+    // This is the Default Page
     ViewBag.Title = "Bank";
 }
 
@@ -20,7 +21,6 @@
         their respective sign in pages. To register a member account, you can use the Register page. <br />
         The staff account provided is "TA" with a password of "Cse445!" After logging in, you can test <br />
         the various functions in the Member/Staff pages. <br />
-        <br />
         <br />
         The individual web services can be tested from the top navigation bar <br />
         The contributions for the services are as follows:<br />
@@ -109,7 +109,7 @@
                     Output: interest (float)
                 </td>
                 <td>
-                    Uses local components; displayed in the user view to show
+                    RESTful service hosted on Webstrar; displayed in the user view to show
                     interest based on current balance.
                 </td>
             </tr>
@@ -118,8 +118,8 @@
                 <td>SVC service - Tax Calculator</td>
                 <td>Input: annual income; Output: calculated tax.</td>
                 <td>
-                    Uses local components; used in user view to quickly calculate tax
-                    from the user's annual income.
+                    RESTful service hosted on Webstrar; use in Tax page to calculate taxes
+                    based on annual income.
                 </td>
             </tr>
             <tr>
@@ -143,14 +143,14 @@
                 <td>Miles</td>
                 <td>JSON storage</td>
                 <td>Stores account information.</td>
-                <td>Uses local components to persist user info in JSON.</td>
+                <td>Uses local components to persist user info in XML storage.</td>
             </tr>
             <tr>
                 <td>Chase</td>
                 <td>User control - Account Register/Signup</td>
-                <td>GUI for user registration, storing into JSON/XML.</td>
+                <td>GUI for user registration, storing into XML.</td>
                 <td>
-                    Uses local services to place info into JSON / XML storage.
+                    Uses local services to place info into XML storage.
                 </td>
             </tr>
             <tr>
@@ -166,7 +166,31 @@
                 <td>User control - Member/Staff Page View</td>
                 <td>GUI for member/staff view.</td>
                 <td>
-                    Uses cookies to determine user and retrieves info from JSON database.
+                    Uses cookies to determine user and retrieves info from XML database.
+                </td>
+            </tr>
+            <tr>
+                <td>Alex</td>
+                <td>User control - Account Page View</td>
+                <td>GUI for account view for changing password.</td>
+                <td>
+                    Uses local services to retrieve and change info into XML storage.
+                </td>
+            </tr>
+            <tr>
+                <td>Miles</td>
+                <td>User control - Forms Security Authentication and Authorization</td>
+                <td>Methodology for automatic login redirection </td>
+                <td>
+                    Uses Forms Security methods for Authorization and Authentication.
+                </td>
+            </tr>
+            <tr>
+                <td>Alex and Miles</td>
+                <td>Application Integration</td>
+                <td>Integrated the individual components into the overall application. </td>
+                <td>
+                    Consuming remote services and making them usable at the local level. 
                 </td>
             </tr>
         </tbody>

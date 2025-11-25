@@ -1,5 +1,5 @@
-﻿
-@{
+﻿@{
+    // This page handles the Manage Account Page UI and the code logic behind it
     ViewBag.Title = "Manage";
     var username = ViewBag.Username as string ?? "unknown";
     var type = ViewBag.AccountType as string ?? "member";
@@ -76,6 +76,7 @@
             var resultSpan = document.getElementById("changePasswordResult");
             var form = document.getElementById("changePasswordForm");
 
+            // This function handles what happens when the Suggest Password button is clicked
             if (suggestButton && newPasswordInput && confirmInput) {
                 suggestButton.addEventListener("click", function () {
                     suggestButton.disabled = true;
@@ -106,6 +107,8 @@
                 });
             }
 
+            // This function handles what happens when the Show/Hide button is clicked
+            // in the new password section
             if (toggleNewButton && newPasswordInput && confirmInput) {
                 toggleNewButton.addEventListener("click", function () {
                     var showing = newPasswordInput.type === "text";
@@ -115,6 +118,8 @@
                 });
             }
 
+            // This function handles what happens when the Show/Hide button is clicked
+            // in the old password section
             if (toggleOldButton && oldPasswordInput) {
                 toggleOldButton.addEventListener("click", function () {
                     var showing = oldPasswordInput.type === "text";
@@ -123,46 +128,28 @@
                 });
             }
 
+            // This function handles what happens when the Change Password button is clicked
             if (form && oldPasswordInput && newPasswordInput && confirmInput && resultSpan) {
                 form.addEventListener("submit", function (e) {
                     e.preventDefault();
 
-                    if (!oldPasswordInput.value) {
-                        resultSpan.classList.remove("text-success");
-                        resultSpan.classList.add("text-danger");
-                        resultSpan.textContent = "Please enter your current password.";
-                        return;
-                    }
-
-                    if (!newPasswordInput.value || !confirmInput.value) {
-                        resultSpan.classList.remove("text-success");
-                        resultSpan.classList.add("text-danger");
-                        resultSpan.textContent = "Please fill all fields.";
-                        return;
-                    }
-
-                    if (newPasswordInput.value !== confirmInput.value) {
-                        resultSpan.classList.remove("text-success");
-                        resultSpan.classList.add("text-danger");
-                        resultSpan.textContent = "New password and confirmation do not match.";
-                        return;
-                    }
-
                     resultSpan.classList.remove("text-success", "text-danger");
                     resultSpan.textContent = "Updating...";
 
+                    // This section helps format the input to the ChangePasswordRequest
                     var payload = {
-                        oldPassword:    oldPasswordInput.value,
-                        newPassword:    newPasswordInput.value,
+                        oldPassword: oldPasswordInput.value,
+                        newPassword: newPasswordInput.value,
                         confirmPassword: confirmInput.value
                     };
 
+                    // This section handles sending and received the ChangePasswordRequest
                     fetch(apiBase + "changePassword", {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json"
                         },
-                        body: JSON.stringify(payload)
+                        body: JSON.stringify(payload) //turns the payload into JSON format
                     })
                         .then(function (res) {
                             if (!res.ok) {
@@ -184,9 +171,10 @@
                             resultSpan.classList.add("text-success");
                             resultSpan.textContent = msg;
 
-                            oldPasswordInput.value  = "";
-                            newPasswordInput.value  = "";
-                            confirmInput.value      = "";
+                            // Reset the values in the textboxes
+                            oldPasswordInput.value = "";
+                            newPasswordInput.value = "";
+                            confirmInput.value  = "";
                         })
                         .catch(function (err) {
                             resultSpan.classList.remove("text-success");
